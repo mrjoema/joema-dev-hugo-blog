@@ -3,15 +3,15 @@
         <title>Software-Engineering - Category - Joe Ma Dev Tech Blog</title>
         <link>http://localhost:1313/categories/software-engineering/</link>
         <description>Software-Engineering - Category - Joe Ma Dev Tech Blog</description>
-        <generator>Hugo -- gohugo.io</generator><language>en-us</language><managingEditor>you@example.com (Your Name)</managingEditor>
-            <webMaster>you@example.com (Your Name)</webMaster><lastBuildDate>Sat, 09 Aug 2025 00:00:00 &#43;0000</lastBuildDate><atom:link href="http://localhost:1313/categories/software-engineering/" rel="self" type="application/rss+xml" /><item>
+        <generator>Hugo -- gohugo.io</generator><language>en-us</language><managingEditor>joema.dev@gamil.com (Joe Ma)</managingEditor>
+            <webMaster>joema.dev@gamil.com (Joe Ma)</webMaster><lastBuildDate>Sat, 09 Aug 2025 00:00:00 &#43;0000</lastBuildDate><atom:link href="http://localhost:1313/categories/software-engineering/" rel="self" type="application/rss+xml" /><item>
     <title>Building a Data Pipeline Infrastructure That Scales with the Business</title>
     <link>http://localhost:1313/2025/08/building-a-data-pipeline-infrastructure-that-scales-with-the-business/</link>
     <pubDate>Sat, 09 Aug 2025 00:00:00 &#43;0000</pubDate>
-    <author>Your Name</author>
+    <author>Joe Ma</author>
     <guid>http://localhost:1313/2025/08/building-a-data-pipeline-infrastructure-that-scales-with-the-business/</guid>
     <description><![CDATA[Overview In Big Tech companies, processing massive volumes of data for annotation is essential for model training and model evaluation with human preferences (RLHF). Frequent changes in data requirements make it critical to have an infrastructure that enables rapid iteration without sacrificing stability or scalability.
-While working with a 10+ engineer organization, I saw an opportunity to unify and modernize our approach. By framing the technical vision and guiding the architectural direction, we rebuilt the data pipeline infrastructure from the ground up—scaling it to meet current needs and anticipate future growth.]]></description>
+While working with a 10+ engineer organization, I observed recurring inefficiencies in our existing approach and initiated a series of alignment meetings to define a shared technical vision and architectural direction.]]></description>
 </item>
 </channel>
 </rss>

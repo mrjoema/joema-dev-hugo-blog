@@ -56,8 +56,8 @@ hasCJKLanguage = false
 
   # Author box (optional)
   [params.author]
-    name = "Your Name"
-    email = "you@example.com"
+    name = "Joe Ma"
+    email = "joema.dev@gamil.com"
 
   # Site features
   [params.page]
