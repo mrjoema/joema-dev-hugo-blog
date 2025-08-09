@@ -93,8 +93,8 @@ hasCJKLanguage = false
   [params.analytics]
     # Google Analytics
     [params.analytics.google]
-      # Replace with your Google Analytics Measurement ID (G-XXXXXXXXXX)
-      id = "G-8JE61YLR41"
+      # Google Analytics ID will be injected from environment variable at build time
+      id = "${HUGO_GOOGLE_ANALYTICS_ID}"
       # whether to respect the browser's "do not track" setting
       respectDoNotTrack = false
 

@@ -7,6 +7,10 @@
 {{- if or $isPost $isAbout -}}
     {{- /* Google Analytics */ -}}
     {{- $google := $analytics.google.id | default site.Config.Services.GoogleAnalytics.ID | default site.Params.analytics.google.id -}}
+    {{- /* Check if the ID is a placeholder and use environment variable instead */ -}}
+    {{- if eq $google "${HUGO_GOOGLE_ANALYTICS_ID}" -}}
+        {{- $google = getenv "HUGO_GOOGLE_ANALYTICS_ID" -}}
+    {{- end -}}
     {{- with $google -}}
         {{- $respectDoNotTrack := $analytics.google.respectDoNotTrack | default site.Config.Privacy.GoogleAnalytics.RespectDoNotTrack | default site.Params.analytics.google.respectDoNotTrack -}}
         <!-- Google tag (gtag.js) -->
