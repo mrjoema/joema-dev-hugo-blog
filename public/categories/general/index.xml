@@ -1,0 +1,18 @@
+<rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
+    <channel>
+        <title>General - Category - Joe Ma Dev Tech Blog</title>
+        <link>http://localhost:1313/categories/general/</link>
+        <description>General - Category - Joe Ma Dev Tech Blog</description>
+        <generator>Hugo -- gohugo.io</generator><language>en-us</language><managingEditor>you@example.com (Your Name)</managingEditor>
+            <webMaster>you@example.com (Your Name)</webMaster><lastBuildDate>Sat, 09 Aug 2025 00:00:00 &#43;0000</lastBuildDate><atom:link href="http://localhost:1313/categories/general/" rel="self" type="application/rss+xml" /><item>
+    <title>Welcome to My Tech Blog</title>
+    <link>http://localhost:1313/2025/08/welcome-to-my-tech-blog/</link>
+    <pubDate>Sat, 09 Aug 2025 00:00:00 &#43;0000</pubDate>
+    <author>Your Name</author>
+    <guid>http://localhost:1313/2025/08/welcome-to-my-tech-blog/</guid>
+    <description><![CDATA[Welcome to my tech blog! This is my first post where I&rsquo;ll introduce what you can expect to find here.
+What This Blog Is About I&rsquo;ll be sharing insights and experiences on:
+Systems and Infrastructure: Deep dives into building and maintaining scalable systems Machine Learning: Practical ML implementations and experiments Server-Driven UI (SDUI): Patterns and approaches for dynamic UIs Development Tools &amp; Practices: Tips and tricks that make development more efficient What to Expect I plan to publish regular posts covering:]]></description>
+</item>
+</channel>
+</rss>

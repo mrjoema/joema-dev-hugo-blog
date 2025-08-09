@@ -1,0 +1,9 @@
+{{- $params := .Page.Scratch.Get "params" -}}
+{{- $render := $params.code.render | default dict -}}
+{{- if $render.goat | default true -}}
+    {{- partial "plugin/goat.html" . -}}
+{{- else -}}
+    <div class="highlight">
+        <pre class="chroma"><code>{{- .Inner -}}</code></pre>
+    </div>
+{{- end -}}

@@ -2,7 +2,8 @@ baseURL = "https://mrjoema.github.io/"
 languageCode = "en-us"
 title = "Joe Ma Dev Tech Blog"
 theme = "LoveIt"
-paginate = 10
+[pagination]
+  pagerSize = 10
 enableRobotsTXT = true
 hasCJKLanguage = false
 
@@ -30,10 +31,6 @@ hasCJKLanguage = false
     name = "About"
     url  = "/about/"
     weight = 20
-  [[menu.main]]
-    name = "Search"
-    url  = "/search/"
-    weight = 5
 
 # Theme params
 [params]
@@ -56,12 +53,16 @@ hasCJKLanguage = false
     enableComment = false
     showCodeCopyButtons = true
 
-  # Search (built-in client-side)
+  # Search configuration
   [params.search]
     enable = true
-    type = "fuse"      # fuse | lunr
+    type = "fuse"
     contentLength = 4000
-    placeholder = "Search"
+    placeholder = "Search..."
+    maxResultLength = 10
+    snippetLength = 30
+    highlightTag = "em"
+    absoluteURL = false
 
   # KaTeX math
   [params.math]

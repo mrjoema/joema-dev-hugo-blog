@@ -1,0 +1,10 @@
+{{- /* Twitter/X embed placeholder */ -}}
+{{- if .IsNamedParams -}}
+<blockquote class="twitter-tweet">
+  <a href="https://x.com/{{ .Get "user" }}/status/{{ .Get "id" }}">Loading X post...</a>
+</blockquote>
+{{- else -}}
+<blockquote class="twitter-tweet">
+  <a href="{{ .Get 0 }}">Loading X post...</a>
+</blockquote>
+{{- end -}}

@@ -1,0 +1,6 @@
+{{- /* Twitter/X simple embed placeholder */ -}}
+{{- if .IsNamedParams -}}
+<a href="https://x.com/{{ .Get "user" }}/status/{{ .Get "id" }}" target="_blank">View on X</a>
+{{- else -}}
+<a href="{{ .Get 0 }}" target="_blank">View on X</a>
+{{- end -}}
