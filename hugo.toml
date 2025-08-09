@@ -97,3 +97,4 @@ hasCJKLanguage = false
 # Output formats needed for search index, RSS, etc.
 [outputs]
   home = ["HTML", "RSS", "JSON"]
+  
