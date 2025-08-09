@@ -10,7 +10,7 @@ categories: [software-engineering]
 
 In Big Tech companies, **processing massive volumes of data for annotation** is essential for model training and model evaluation with human preferences (**RLHF**). Frequent changes in data requirements make it critical to have an **infrastructure that enables rapid iteration** without sacrificing stability or scalability.
 
-While working with a **10+ engineer organization**, I observed recurring inefficiencies in our existing approach and initiated a series of alignment meetings to define a shared *technical vision* and *architectural direction*. Once aligned, each engineer took ownership of a specific area of the plan, enabling parallel implementation. Through this coordinated effort, we **rebuilt the data pipeline infrastructure from the ground up**—scaling it to meet current needs and anticipate future growth.
+While working with the eng organization, I observed recurring inefficiencies in our existing approach and initiated a series of alignment meetings to define a shared *technical vision* and *architectural direction*. Once aligned, each engineer took ownership of a specific area of the plan, enabling parallel implementation. Through this coordinated effort, we **rebuilt the data pipeline infrastructure from the ground up**—scaling it to meet current needs and anticipate future growth.
 
 ---
 

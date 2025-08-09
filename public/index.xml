@@ -13,7 +13,7 @@
     <author>Joe Ma</author>
     <guid>http://localhost:1313/tech-blog/2025/08/building-a-data-pipeline-infrastructure-that-scales-with-the-business/</guid>
     <description><![CDATA[Overview In Big Tech companies, processing massive volumes of data for annotation is essential for model training and model evaluation with human preferences (RLHF). Frequent changes in data requirements make it critical to have an infrastructure that enables rapid iteration without sacrificing stability or scalability.
-While working with a 10+ engineer organization, I observed recurring inefficiencies in our existing approach and initiated a series of alignment meetings to define a shared technical vision and architectural direction.]]></description>
+While working with the eng organization, I observed recurring inefficiencies in our existing approach and initiated a series of alignment meetings to define a shared technical vision and architectural direction.]]></description>
 </item>
 </channel>
 </rss>
