@@ -65,8 +65,6 @@ Embedding business context enables **faster iteration** and **adaptation** to ev
 ## High Level Architecture
 ![High Level Architecture](/images/scale-pipeline-high-level-architecture.png)
 
-While I cannot share all details to protect company confidential information, I can outline how we executed this initiative by applying established engineering best practices.
-
 ### 1. Adopt Callback Pattern to Enable Faster Iteration
 RLHF pipelines follow a **common workflow**:
 ```
