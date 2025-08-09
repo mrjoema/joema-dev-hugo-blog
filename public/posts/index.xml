@@ -1,17 +1,3 @@
-<rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
-    <channel>
-        <title>All Posts - Joe Ma&#39;s Tech Blog</title>
-        <link>http://localhost:1313/tech-blog/posts/</link>
-        <description>All Posts | Joe Ma&#39;s Tech Blog</description>
-        <generator>Hugo -- gohugo.io</generator><language>en-us</language><managingEditor>joema.dev@gamil.com (Joe Ma)</managingEditor>
-            <webMaster>joema.dev@gamil.com (Joe Ma)</webMaster><lastBuildDate>Sat, 09 Aug 2025 00:00:00 &#43;0000</lastBuildDate><atom:link href="http://localhost:1313/tech-blog/posts/" rel="self" type="application/rss+xml" /><item>
-    <title>Building a Data Pipeline Infrastructure That Scales with the Business</title>
-    <link>http://localhost:1313/tech-blog/2025/08/building-a-data-pipeline-infrastructure-that-scales-with-the-business/</link>
-    <pubDate>Sat, 09 Aug 2025 00:00:00 &#43;0000</pubDate>
-    <author>Joe Ma</author>
-    <guid>http://localhost:1313/tech-blog/2025/08/building-a-data-pipeline-infrastructure-that-scales-with-the-business/</guid>
-    <description><![CDATA[Overview In Big Tech companies, processing massive volumes of data for annotation is essential for model training and model evaluation with human preferences (RLHF). Frequent changes in data requirements make it critical to have an infrastructure that enables rapid iteration without sacrificing stability or scalability.
-While working with the eng organization, I observed recurring inefficiencies in our existing approach and initiated a series of alignment meetings to define a shared technical vision and architectural direction.]]></description>
-</item>
-</channel>
-</rss>
+<rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title>All Posts - Joe Ma's Tech Blog</title><link>https://mrjoema.github.io/tech-blog/posts/</link><description>All Posts | Joe Ma's Tech Blog</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><managingEditor>joema.dev@gamil.com (Joe Ma)</managingEditor><webMaster>joema.dev@gamil.com (Joe Ma)</webMaster><lastBuildDate>Sat, 09 Aug 2025 00:00:00 +0000</lastBuildDate><atom:link href="https://mrjoema.github.io/tech-blog/posts/" rel="self" type="application/rss+xml"/><item><title>Building a Data Pipeline Infrastructure That Scales with the Business</title><link>https://mrjoema.github.io/tech-blog/2025/08/building-a-data-pipeline-infrastructure-that-scales-with-the-business/</link><pubDate>Sat, 09 Aug 2025 00:00:00 +0000</pubDate><author>Joe Ma</author><guid>https://mrjoema.github.io/tech-blog/2025/08/building-a-data-pipeline-infrastructure-that-scales-with-the-business/</guid><description><![CDATA[<h2 id="overview">Overview</h2>
+<p>In Big Tech companies, <strong>processing massive volumes of data for annotation</strong> is essential for model training and model evaluation with human preferences (<strong>RLHF</strong>). Frequent changes in data requirements make it critical to have an <strong>infrastructure that enables rapid iteration</strong> without sacrificing stability or scalability.</p>
+<p>While working with the eng organization, I observed recurring inefficiencies in our existing approach and initiated a series of alignment meetings to define a shared <em>technical vision</em> and <em>architectural direction</em>. Once aligned, each engineer took ownership of a specific area of the plan, enabling parallel implementation. Through this coordinated effort, we <strong>rebuilt the data pipeline infrastructure from the ground up</strong>—scaling it to meet current needs and anticipate future growth.</p>]]></description></item></channel></rss>

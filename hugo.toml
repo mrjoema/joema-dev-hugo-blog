@@ -89,6 +89,15 @@ hasCJKLanguage = false
     enable = true
     library = "mermaid"
 
+  # Analytics config
+  [params.analytics]
+    # Google Analytics
+    [params.analytics.google]
+      # Replace with your Google Analytics Measurement ID (G-XXXXXXXXXX)
+      id = "G-8JE61YLR41"
+      # whether to respect the browser's "do not track" setting
+      respectDoNotTrack = false
+
 # Taxonomies
 [taxonomies]
   tag = "tags"
