@@ -1,0 +1,242 @@
+---
+title: Building a Data Pipeline Infrastructure That Scales with the Business
+date: 2025-08-09
+draft: false
+tags: [data-pipeline, data, aiml, annotation]
+categories: [software-engineering]
+---
+
+## Overview
+
+In Big Tech companies, **processing massive volumes of data for annotation** is essential for model training and model evaluation with human preferences (**RLHF**). Frequent changes in data requirements make it critical to have an **infrastructure that enables rapid iteration** without sacrificing stability or scalability.
+
+While working with a **10+ engineer organization**, I observed recurring inefficiencies in our existing approach and initiated a series of alignment meetings to define a shared *technical vision* and *architectural direction*. Once aligned, each engineer took ownership of a specific area of the plan, enabling parallel implementation. Through this coordinated effort, we **rebuilt the data pipeline infrastructure from the ground up**—scaling it to meet current needs and anticipate future growth.
+
+---
+
+## The Challenge
+
+Before we began the rebuild, I worked closely with the eng organization to surface pain points and map recurring patterns. **Four key issues emerged:**
+
+### 1. Engineers Spending Excessive Time Managing Infrastructure
+Multiple AWS accounts and low-level resource management meant engineers had to invest heavily in **DevOps concepts**.  
+They often wrote extensive **Pulumi** code just to provision resources—*delaying any work on business logic*.
+
+### 2. Broken Local Testing Environment Slowing Feedback Loops
+Local testing was effectively broken due to **persistent, hard-to-diagnose errors**.  
+Each iteration required a **full dev deployment**, adding *over 3 minutes* before code could even be tested—multiplying delays across the team.
+
+### 3. No Unified Protocol or Framework for Common Business Logic
+Although internal libraries existed for **annotation upload/download** and **video perception**, they offered **limited abstraction**.  
+Teams still wrote **large amounts of repetitive PySpark boilerplate** for similar workflows.
+
+### 4. Limited Data Pipeline Expertise Across the Organization
+With most engineers coming from **full-stack backgrounds**, pipelines were often implemented without best practices—leading to **slow runs**, **fragile error handling**, and **minimal operational insights**.
+
+![Current Challenge](/images/scale-pipeline-current-challenge.png)
+
+The image above shows the then-current pipeline landscape. As you can see, **cross-project leverage was minimal**, and each pipeline operated in isolation—often **reinventing the same data pipeline logic**.  
+This fragmentation resulted in **inconsistent standards** and **noticeable discrepancies** in pipeline quality.
+
+---
+
+## Technical Vision
+
+### 1. Eliminate Self-Managed AWS Infrastructure
+Migrate from individually managed AWS accounts to the **internal data platform**, which provides **higher-level abstractions** for Airflow, Kubernetes, Spark, and Iceberg—removing the need to handle **infrastructure provisioning**, **IAM**, and other low-level configs.
+
+### 2. Provide a Friendly Dev/Deployment Environment
+Offer **robust local** and **isolated cloud** test environments to prevent deployment conflicts.  
+Automate promotions across dev, test, and prod to eliminate repetitive manual steps.
+
+### 3. Align Pipeline Infrastructure with Business Context
+Build a **high-level framework** to orchestrate RLHF data pipelines with minimal effort.  
+Embedding business context enables **faster iteration** and **adaptation** to evolving data needs.
+
+---
+
+## Success Metrics
+- **MVP delivered** and integrated with a new data pipeline project.  
+- **One existing pipeline successfully migrated** to the new infrastructure.  
+- **Boilerplate tasks eliminated** (e.g., asset download/upload, metadata table bootstrap) through framework-level code, reducing the need for engineers to focus on Spark best practices.  
+- **Developer experience improved** via robust local testing, isolated cloud test environments, and enforced linting/best practices (e.g., `pylint`).
+---
+
+## High Level Architecture
+![High Level Architecture](/images/scale-pipeline-high-level-architecture.png)
+
+While I cannot share all details to protect company confidential information, I can outline how we executed this initiative by applying established engineering best practices.
+
+### 1. Adopt Callback Pattern to Enable Faster Iteration
+RLHF pipelines follow a **common workflow**:
+```
+1. Asset ingestion
+2. Asset processing / pre-annotation
+3. Annotation platform upload
+4. Annotated result processing
+5. Dataset generation
+```
+We adopt a **callback pattern** to **abstract these stages**, eliminating repetitive logic and enabling faster iteration.  
+Common tasks—such as **Spark-based DataFrame processing** and **parallelized asset handling**—are encapsulated, with **extensible UDF callbacks** allowing engineers from *full-stack backgrounds* to easily implement custom Python logic.
+
+---
+
+#### Example: Pre-Annotation Spark Job (Row-Oriented Callback with External Tools)
+
+This example shows a **row-oriented callback** where each row is passed as a **Python object (dict)** to user code. The callback is free to invoke libraries like **ffmpeg** (via `subprocess`) to transform or enrich the data. We use `mapPartitions` to minimize per-row overhead and allow **batch setup/teardown** in each executor process.
+
+###### Pre-Annotation Job (skeleton)
+
+```python
+# pre_annotate_job.py  (skeleton)
+# 1) start SparkSession
+# 2) read input DataFrame (assets)
+# 3) load callback from env: CALLBACK_FILE
+# 4) mapPartitions -> for each row (as dict), call callback.process_row(row)
+# 5) create DataFrame from results, write to output
+
+# NOTE: All non-essential details omitted on purpose.
+```
+
+---
+
+##### Callback (only `process_row` matters)
+
+```python
+# my_callback.py
+from typing import Dict, Any, Optional
+import hashlib
+# Optional: import subprocess to call external tools like ffmpeg
+# import subprocess
+
+class Callbacks:
+    def process_row(self, row: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+        """Transform a single row (plain Python dict). Return a dict or None to drop."""
+        video_id = row.get("videoId")
+        url = row.get("url")
+        if not video_id or not url:
+            return None
+
+        # Example: derive a stable request id
+        request_id = hashlib.sha256(str(video_id).encode("utf-8")).hexdigest()
+
+        # Example (optional): call external tools such as ffmpeg
+        # subprocess.run(["ffmpeg", "-i", url, "-t", "1", "-f", "null", "-"], check=False)
+
+        # Return only what the annotation platform needs
+        return {
+            "video_id": str(video_id),
+            "asset_url": url,
+            "request_id": request_id,
+        }
+```
+
+---
+
+##### Spark on K8s (passing the callback path)
+
+```yaml
+# sparkapplication.yaml  (only the relevant env var shown)
+apiVersion: sparkoperator.k8s.io/v1beta2
+kind: SparkApplication
+metadata:
+  name: rlhf-pre-annotate
+spec:
+  type: Python
+  mainApplicationFile: local:///opt/app/pre_annotate_job.py
+  driver:
+    env:
+      - name: CALLBACK_FILE
+        value: "/opt/app/my_callback.py"   # <-- point to your callback
+  executor:
+    env:
+      - name: CALLBACK_FILE
+        value: "/opt/app/my_callback.py"
+```
+
+### 2. Friendly CI/CD Deployment and Testing
+
+As shown in the diagram below, we simplify our environment model to **two core environments**—**dev** and **prod**—removing unused staging and test environments.  
+
+All commits pushed to a **feature branch** trigger an **automatic sandbox deployment** in an **isolated environment** managed by the internal data platform and running in the **shared dev Kubernetes cluster**.  
+
+**Benefits:**
+- **Fast feedback loops** for feature development.
+- **Isolation** between engineers’ work to avoid cross-branch interference.
+- **Automatic promotion** to production when changes are merged into `main`.
+
+![CICD / Sandbox Setup](/images/scale-pipeline-cicd.png)
+
+For even faster iteration, engineers can run a **local testing script** that executes PySpark code inside a **containerized environment** on their local machine, allowing them to validate changes before pushing to the feature branch.
+
+## Technical Discussion and Tradeoff
+
+### 1. Excessive Python-Based Callback Pattern (UDF) Creates Spark Job Overhead
+
+When engineers implement callbacks in Python, Spark must invoke them as UDFs (user-defined functions). This creates a **cross-language execution path** between the JVM (where Spark core runs) and the Python process (where the callback code runs).  
+
+As shown in the diagram below, every UDF call requires:
+1. **Serialization** of data from the JVM into Python-compatible objects.  
+2. **Transfer** of that data through the Py4J socket bridge.  
+3. **Execution** of the Python callback logic.  
+4. **Serialization back** from Python to JVM objects.  
+
+While this overhead can become a bottleneck at scale (e.g., millions of rows), there is **no requirement for the data to arrive at extremely precise delivery times**. Given this, our **first priority is enabling full-stack engineers to deliver quickly**, and we consciously accept this trade-off.  
+
+Rather than investing significant effort in educating engineers on data pipeline best practices, we built a **framework** that abstracts away Spark complexity and empowers them to implement their business logic in familiar Python code.
+
+![python vs spark process](/images/scale-pipeline-process.jpg)
+
+**Key takeaways:**
+- Python callbacks run inside the **Python process**, requiring all data to cross the JVM↔Python boundary.
+- In our case, the performance cost is acceptable given the data volume, lack of strict delivery-time requirements, and our goal of rapid feature delivery.
+- The framework allows engineers to focus on business logic while the platform handles orchestration, scaling, and data movement.
+
+### 2. State-Based Tables vs. Event-Based Tables
+
+During migration, we refactored the pipeline for **parallel execution**. This introduced **concurrent writes** to an Iceberg table, resulting in **commit conflicts** (Iceberg uses optimistic concurrency with snapshot isolation). When multiple jobs write overlapping files or partitions and attempt to **commit against the same snapshot lineage**, Iceberg rejects one or more commits.
+
+This prompted a discussion on **table design strategy**. While append-only tables are the industry norm in data engineering—and are well-supported by Iceberg—we ultimately chose a **state-based design** for this case. To mitigate concurrent write conflicts, we implemented a **generic merge job** that consolidates all temporary tables produced by parallel jobs into the target table, adding extra columns as needed.
+
+**The main reasons we chose state-based design:**
+- **Latest data access:** Our queries always rely on the most up-to-date state, making state tables a better fit for our workload.
+- **Team familiarity:** All engineers have a full-stack background, and adopting append-only style would add overhead for them to adapt to the event-sourced mental model.
+- **Reduced downstream complexity:** Append style shifts the cost to downstream queries and dashboards, requiring careful handling of “latest record” logic and schema versioning. Frequent schema changes from evolving business requirements can easily break these consumers.
+
+---
+
+**Example: Merging temporary tables into the base table (Upsert with new columns)**
+
+```sql
+MERGE INTO prod.main_table AS target
+USING (
+    SELECT * FROM tmp_table_1
+    UNION ALL
+    SELECT * FROM tmp_table_2
+    UNION ALL
+    SELECT * FROM tmp_table_3
+) AS source
+ON target.id = source.id
+WHEN MATCHED THEN UPDATE SET
+    target.col_a = source.col_a,
+    target.col_b = source.col_b,
+    target.new_col_c = source.new_col_c,
+    target.updated_at = current_timestamp()
+WHEN NOT MATCHED THEN INSERT *
+;
+```
+**Note:** We will revisit the table design next quarter after observing the system in production. The current state-based approach addresses immediate concurrency and downstream complexity, but Iceberg’s native features—such as schema and partition evolution, time-travel, equality/position deletes with merge-on-read semantics, and `MERGE INTO`—may mitigate several drawbacks of an append-only model. We’ll re-evaluate with production metrics (e.g., commit conflict rate, merge job runtime, query latency/cost) before making a long-term decision.
+
+
+## Outcome
+This initiative transformed a fragmented, slow-moving RLHF data pipeline ecosystem into a **scalable, developer-friendly platform** aligned with evolving business needs.  
+I took the **initiative to surface key pain points**, drove **cross-team alignment**, and **authored the technical vision and architectural direction** that guided parallel implementation across a 10+ engineer org. Key results from the collective effort include:
+
+- **Infrastructure modernization** — Migrated from self-managed AWS resources to an internal high-level data platform, eliminating DevOps overhead for engineers.  
+- **Developer experience boost** — Enabled robust local and isolated cloud testing, automated environment promotions, and simplified CI/CD workflows.  
+- **Framework-driven productivity** — Introduced a **callback-based orchestration pattern**, abstracting Spark complexity so full-stack engineers could contribute business logic in familiar Python.  
+- **Table strategy for concurrency** — Resolved Iceberg commit conflicts via a **state-based table design** and generic merge process, while laying the groundwork for potential re-adoption of append-only with Iceberg’s native capabilities.  
+- **Measured trade-offs** — Accepted Python UDF overhead to maximize iteration speed, knowing delivery-time precision was not business-critical.
+
+**Impact:**  
+By setting the direction and enabling coordinated execution, I accelerated iteration cycles, reduced boilerplate, standardized pipeline quality, and positioned the org to scale data processing capacity for future model training demands.
