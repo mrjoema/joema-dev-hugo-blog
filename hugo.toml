@@ -38,6 +38,21 @@ hasCJKLanguage = false
   description = "Systems, infra, ML, SDUI notes"
   defaultTheme = "auto"   # light/dark
   disableThemeToggle = false
+  
+  # Header config
+  [params.header]
+    # desktop header mode
+    desktopMode = "fixed"
+    # mobile header mode
+    mobileMode = "auto"
+    # Header title config
+    [params.header.title]
+      # URL of the LOGO
+      logo = ""
+      # title name
+      name = "Joe Ma Dev Tech Blog"
+      # whether to add subtitle
+      typeit = false
 
   # Author box (optional)
   [params.author]
@@ -56,7 +71,7 @@ hasCJKLanguage = false
   # Search configuration
   [params.search]
     enable = true
-    type = "fuse"
+    type = "lunr"
     contentLength = 4000
     placeholder = "Search..."
     maxResultLength = 10
