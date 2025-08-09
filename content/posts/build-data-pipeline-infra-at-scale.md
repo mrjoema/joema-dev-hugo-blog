@@ -154,7 +154,12 @@ spec:
         value: "/opt/app/my_callback.py"
 ```
 
-### 2. Friendly CI/CD Deployment and Testing
+The diagram below illustrates how engineers can leverage the framework using custom callbacks.
+
+![Modualzied job with custom callback](/images/scale-pipeline-modualized-job.png)
+
+
+### 3. Friendly CI/CD Deployment and Testing
 
 As shown in the diagram below, we simplify our environment model to **two core environments**—**dev** and **prod**—removing unused staging and test environments.  
 

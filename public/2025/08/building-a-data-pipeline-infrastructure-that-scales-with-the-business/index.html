@@ -38,7 +38,7 @@ While working with a 10&#43; engineer organization, I observed recurring ineffic
         "mainEntityOfPage": {
             "@type": "WebPage",
             "@id": "http:\/\/localhost:1313\/tech-blog\/2025\/08\/building-a-data-pipeline-infrastructure-that-scales-with-the-business\/"
-        },"genre": "posts","keywords": "data-pipeline, data, aiml, annotation","wordcount":  1738 ,
+        },"genre": "posts","keywords": "data-pipeline, data, aiml, annotation","wordcount":  1751 ,
         "url": "http:\/\/localhost:1313\/tech-blog\/2025\/08\/building-a-data-pipeline-infrastructure-that-scales-with-the-business\/","datePublished": "2025-08-09T00:00:00+00:00","dateModified": "2025-08-09T00:00:00+00:00","publisher": {
             "@type": "Organization",
             "name": ""},"author": {
@@ -112,7 +112,7 @@ While working with a 10&#43; engineer organization, I observed recurring ineffic
             <div class="toc-content" id="toc-content-auto"></div>
         </div><article class="page single"><h1 class="single-title animate__animated animate__flipInX">Building a Data Pipeline Infrastructure That Scales with the Business</h1><div class="post-meta">
             <div class="post-meta-line"><span class="post-author"><a href="/tech-blog/" title="Author" rel="author" class="author"><i class="fas fa-user-circle fa-fw" aria-hidden="true"></i>Joe Ma</a></span>&nbsp;<span class="post-category">included in <a href="/tech-blog/categories/software-engineering/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>Software-Engineering</a></span></div>
-            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw" aria-hidden="true"></i>&nbsp;<time datetime="2025-08-09">2025-08-09</time>&nbsp;<i class="fas fa-pencil-alt fa-fw" aria-hidden="true"></i>&nbsp;1738 words&nbsp;
+            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw" aria-hidden="true"></i>&nbsp;<time datetime="2025-08-09">2025-08-09</time>&nbsp;<i class="fas fa-pencil-alt fa-fw" aria-hidden="true"></i>&nbsp;1751 words&nbsp;
                 <i class="far fa-clock fa-fw" aria-hidden="true"></i>&nbsp;9 minutes&nbsp;</div>
         </div><div class="details toc" id="toc-static"  data-kept="">
                 <div class="details-summary toc-title">
@@ -141,7 +141,7 @@ While working with a 10&#43; engineer organization, I observed recurring ineffic
     <li><a href="#high-level-architecture">High Level Architecture</a>
       <ul>
         <li><a href="#1-adopt-callback-pattern-to-enable-faster-iteration">1. Adopt Callback Pattern to Enable Faster Iteration</a></li>
-        <li><a href="#2-friendly-cicd-deployment-and-testing">2. Friendly CI/CD Deployment and Testing</a></li>
+        <li><a href="#3-friendly-cicd-deployment-and-testing">3. Friendly CI/CD Deployment and Testing</a></li>
       </ul>
     </li>
     <li><a href="#technical-discussion-and-tradeoff">Technical Discussion and Tradeoff</a>
@@ -296,7 +296,16 @@ Common tasks—such as <strong>Spark-based DataFrame processing</strong> and <st
 </span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">env</span><span class="p">:</span><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w">      </span>- <span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">CALLBACK_FILE</span><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;/opt/app/my_callback.py&#34;</span></span></span></code></pre></div></div>
-<h3 id="2-friendly-cicd-deployment-and-testing">2. Friendly CI/CD Deployment and Testing</h3>
+<p>The diagram below illustrates how engineers can leverage the framework using custom callbacks.</p>
+<p><img
+        class="lazyload"
+        src="/tech-blog/svg/loading.min.svg"
+        data-src="/tech-blog/images/scale-pipeline-modualized-job.png"
+        data-srcset="/tech-blog/images/scale-pipeline-modualized-job.png, /tech-blog/images/scale-pipeline-modualized-job.png 1.5x, /tech-blog/images/scale-pipeline-modualized-job.png 2x"
+        data-sizes="auto"
+        alt="/tech-blog/images/scale-pipeline-modualized-job.png"
+        title="Modualzied job with custom callback" width="3212" height="2067" /></p>
+<h3 id="3-friendly-cicd-deployment-and-testing">3. Friendly CI/CD Deployment and Testing</h3>
 <p>As shown in the diagram below, we simplify our environment model to <strong>two core environments</strong>—<strong>dev</strong> and <strong>prod</strong>—removing unused staging and test environments.</p>
 <p>All commits pushed to a <strong>feature branch</strong> trigger an <strong>automatic sandbox deployment</strong> in an <strong>isolated environment</strong> managed by the internal data platform and running in the <strong>shared dev Kubernetes cluster</strong>.</p>
 <p><strong>Benefits:</strong></p>
