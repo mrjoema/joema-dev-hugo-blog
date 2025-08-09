@@ -5,16 +5,19 @@ draft: false
 ---
 
 ## About Me
+I’m a software engineer with a career spanning **product engineering with backend / fullstack development**.
 
-Welcome to my tech blog! I'm a developer passionate about systems, infrastructure, machine learning, and SDUI (Server-Driven UI) technologies.
+I began in mobile and web development, building end-to-end features with a focus on user impact and reliability. Over time, I expanded into MLOps and later fintech backend engineering, delivering high-performance systems for payments and money movement. 
 
-This blog is where I share my thoughts, experiences, and learnings from working with various technologies.
+Today, I specialize in **AI/ML data infrastructure**, designing scalable pipelines and platforms that power large-scale model training and evaluation (RLHF). My strength lies in blending **product-driven thinking** with **infrastructure excellence** — ensuring that what we build not only works at scale, but drives real business value.
 
-### Areas of Interest
+### Areas of Expertise
+- **Backend & Fullstack Engineering** – Scalable APIs, high-throughput systems, and product delivery  
+- **Product Engineering** – Translating business needs into reliable, impactful features  
+- **Data Infrastructure** – Large-scale pipelines, orchestration frameworks, Iceberg-based storage  
+- **Fintech Systems** – Payments, ACH money movement, fraud detection
+- **Cross-functional Leadership** – Technical vision, roadmap ownership, and team enablement  
 
-- **Systems & Infrastructure**: Building robust and scalable systems
-- **Machine Learning**: Exploring ML applications and implementations
-- **SDUI**: Server-Driven UI patterns and best practices
-- **DevOps**: Automation, deployment, and monitoring
 
-Feel free to explore my posts and reach out if you have any questions or would like to connect!
+### Contact
+- [**LinkedIn**](https://www.linkedin.com/in/hokyinma)

@@ -1,6 +1,6 @@
 <rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
     <channel>
-        <title>Joe Ma Dev Tech Blog</title>
+        <title>Joe Ma&#39;s Tech Blog</title>
         <link>http://localhost:1313/</link>
         <description>Systems, infra, ML, SDUI notes</description>
         <generator>Hugo -- gohugo.io</generator><language>en-us</language><managingEditor>joema.dev@gamil.com (Joe Ma)</managingEditor>
