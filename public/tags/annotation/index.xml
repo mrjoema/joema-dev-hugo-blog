@@ -1,15 +1,15 @@
 <rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
     <channel>
         <title>Annotation - Tag - Joe Ma&#39;s Tech Blog</title>
-        <link>http://localhost:1313/tags/annotation/</link>
+        <link>http://localhost:1313/tech-blog/tags/annotation/</link>
         <description>Annotation - Tag - Joe Ma&#39;s Tech Blog</description>
         <generator>Hugo -- gohugo.io</generator><language>en-us</language><managingEditor>joema.dev@gamil.com (Joe Ma)</managingEditor>
-            <webMaster>joema.dev@gamil.com (Joe Ma)</webMaster><lastBuildDate>Sat, 09 Aug 2025 00:00:00 &#43;0000</lastBuildDate><atom:link href="http://localhost:1313/tags/annotation/" rel="self" type="application/rss+xml" /><item>
+            <webMaster>joema.dev@gamil.com (Joe Ma)</webMaster><lastBuildDate>Sat, 09 Aug 2025 00:00:00 &#43;0000</lastBuildDate><atom:link href="http://localhost:1313/tech-blog/tags/annotation/" rel="self" type="application/rss+xml" /><item>
     <title>Building a Data Pipeline Infrastructure That Scales with the Business</title>
-    <link>http://localhost:1313/2025/08/building-a-data-pipeline-infrastructure-that-scales-with-the-business/</link>
+    <link>http://localhost:1313/tech-blog/2025/08/building-a-data-pipeline-infrastructure-that-scales-with-the-business/</link>
     <pubDate>Sat, 09 Aug 2025 00:00:00 &#43;0000</pubDate>
     <author>Joe Ma</author>
-    <guid>http://localhost:1313/2025/08/building-a-data-pipeline-infrastructure-that-scales-with-the-business/</guid>
+    <guid>http://localhost:1313/tech-blog/2025/08/building-a-data-pipeline-infrastructure-that-scales-with-the-business/</guid>
     <description><![CDATA[Overview In Big Tech companies, processing massive volumes of data for annotation is essential for model training and model evaluation with human preferences (RLHF). Frequent changes in data requirements make it critical to have an infrastructure that enables rapid iteration without sacrificing stability or scalability.
 While working with a 10+ engineer organization, I observed recurring inefficiencies in our existing approach and initiated a series of alignment meetings to define a shared technical vision and architectural direction.]]></description>
 </item>

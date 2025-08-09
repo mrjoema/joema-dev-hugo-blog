@@ -2,15 +2,15 @@
     xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
     xmlns:xhtml="http://www.w3.org/1999/xhtml"
     ><url>
-            <loc>http://localhost:1313/about/</loc><lastmod>2025-08-09T00:00:00&#43;00:00</lastmod></url><url>
-            <loc>http://localhost:1313/tags/aiml/</loc><lastmod>2025-08-09T00:00:00&#43;00:00</lastmod></url><url>
-            <loc>http://localhost:1313/tags/annotation/</loc><lastmod>2025-08-09T00:00:00&#43;00:00</lastmod></url><url>
-            <loc>http://localhost:1313/2025/08/building-a-data-pipeline-infrastructure-that-scales-with-the-business/</loc><lastmod>2025-08-09T00:00:00&#43;00:00</lastmod></url><url>
-            <loc>http://localhost:1313/categories/</loc><lastmod>2025-08-09T00:00:00&#43;00:00</lastmod></url><url>
-            <loc>http://localhost:1313/tags/data/</loc><lastmod>2025-08-09T00:00:00&#43;00:00</lastmod></url><url>
-            <loc>http://localhost:1313/tags/data-pipeline/</loc><lastmod>2025-08-09T00:00:00&#43;00:00</lastmod></url><url>
-            <loc>http://localhost:1313/</loc><lastmod>2025-08-09T00:00:00&#43;00:00</lastmod></url><url>
-            <loc>http://localhost:1313/posts/</loc><lastmod>2025-08-09T00:00:00&#43;00:00</lastmod></url><url>
-            <loc>http://localhost:1313/categories/software-engineering/</loc><lastmod>2025-08-09T00:00:00&#43;00:00</lastmod></url><url>
-            <loc>http://localhost:1313/tags/</loc><lastmod>2025-08-09T00:00:00&#43;00:00</lastmod></url><url>
-            <loc>http://localhost:1313/search/</loc></url></urlset>
+            <loc>http://localhost:1313/tech-blog/about/</loc><lastmod>2025-08-09T00:00:00&#43;00:00</lastmod></url><url>
+            <loc>http://localhost:1313/tech-blog/tags/aiml/</loc><lastmod>2025-08-09T00:00:00&#43;00:00</lastmod></url><url>
+            <loc>http://localhost:1313/tech-blog/tags/annotation/</loc><lastmod>2025-08-09T00:00:00&#43;00:00</lastmod></url><url>
+            <loc>http://localhost:1313/tech-blog/2025/08/building-a-data-pipeline-infrastructure-that-scales-with-the-business/</loc><lastmod>2025-08-09T00:00:00&#43;00:00</lastmod></url><url>
+            <loc>http://localhost:1313/tech-blog/categories/</loc><lastmod>2025-08-09T00:00:00&#43;00:00</lastmod></url><url>
+            <loc>http://localhost:1313/tech-blog/tags/data/</loc><lastmod>2025-08-09T00:00:00&#43;00:00</lastmod></url><url>
+            <loc>http://localhost:1313/tech-blog/tags/data-pipeline/</loc><lastmod>2025-08-09T00:00:00&#43;00:00</lastmod></url><url>
+            <loc>http://localhost:1313/tech-blog/</loc><lastmod>2025-08-09T00:00:00&#43;00:00</lastmod></url><url>
+            <loc>http://localhost:1313/tech-blog/posts/</loc><lastmod>2025-08-09T00:00:00&#43;00:00</lastmod></url><url>
+            <loc>http://localhost:1313/tech-blog/categories/software-engineering/</loc><lastmod>2025-08-09T00:00:00&#43;00:00</lastmod></url><url>
+            <loc>http://localhost:1313/tech-blog/tags/</loc><lastmod>2025-08-09T00:00:00&#43;00:00</lastmod></url><url>
+            <loc>http://localhost:1313/tech-blog/search/</loc></url></urlset>

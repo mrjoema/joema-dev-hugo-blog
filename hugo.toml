@@ -1,4 +1,4 @@
-baseURL = "https://mrjoema.github.io/"
+baseURL = "https://mrjoema.github.io/tech-blog/"
 languageCode = "en-us"
 title = "Joe Ma's Tech Blog"
 theme = "LoveIt"
