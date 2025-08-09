@@ -1,1 +1,16 @@
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml"><url><loc>https://mrjoema.github.io/tech-blog/about/</loc><lastmod>2025-08-09T00:00:00+00:00</lastmod></url><url><loc>https://mrjoema.github.io/tech-blog/tags/aiml/</loc><lastmod>2025-08-09T00:00:00+00:00</lastmod></url><url><loc>https://mrjoema.github.io/tech-blog/tags/annotation/</loc><lastmod>2025-08-09T00:00:00+00:00</lastmod></url><url><loc>https://mrjoema.github.io/tech-blog/2025/08/building-a-data-pipeline-infrastructure-that-scales-with-the-business/</loc><lastmod>2025-08-09T00:00:00+00:00</lastmod></url><url><loc>https://mrjoema.github.io/tech-blog/categories/</loc><lastmod>2025-08-09T00:00:00+00:00</lastmod></url><url><loc>https://mrjoema.github.io/tech-blog/tags/data/</loc><lastmod>2025-08-09T00:00:00+00:00</lastmod></url><url><loc>https://mrjoema.github.io/tech-blog/tags/data-pipeline/</loc><lastmod>2025-08-09T00:00:00+00:00</lastmod></url><url><loc>https://mrjoema.github.io/tech-blog/</loc><lastmod>2025-08-09T00:00:00+00:00</lastmod></url><url><loc>https://mrjoema.github.io/tech-blog/posts/</loc><lastmod>2025-08-09T00:00:00+00:00</lastmod></url><url><loc>https://mrjoema.github.io/tech-blog/categories/software-engineering/</loc><lastmod>2025-08-09T00:00:00+00:00</lastmod></url><url><loc>https://mrjoema.github.io/tech-blog/tags/</loc><lastmod>2025-08-09T00:00:00+00:00</lastmod></url><url><loc>https://mrjoema.github.io/tech-blog/search/</loc></url></urlset>
+<urlset
+    xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+    xmlns:xhtml="http://www.w3.org/1999/xhtml"
+    ><url>
+            <loc>https://mrjoema.github.io/tech-blog/about/</loc><lastmod>2025-08-09T00:00:00&#43;00:00</lastmod></url><url>
+            <loc>https://mrjoema.github.io/tech-blog/tags/aiml/</loc><lastmod>2025-08-09T00:00:00&#43;00:00</lastmod></url><url>
+            <loc>https://mrjoema.github.io/tech-blog/tags/annotation/</loc><lastmod>2025-08-09T00:00:00&#43;00:00</lastmod></url><url>
+            <loc>https://mrjoema.github.io/tech-blog/2025/08/building-a-data-pipeline-infrastructure-that-scales-with-the-business/</loc><lastmod>2025-08-09T00:00:00&#43;00:00</lastmod></url><url>
+            <loc>https://mrjoema.github.io/tech-blog/categories/</loc><lastmod>2025-08-09T00:00:00&#43;00:00</lastmod></url><url>
+            <loc>https://mrjoema.github.io/tech-blog/tags/data/</loc><lastmod>2025-08-09T00:00:00&#43;00:00</lastmod></url><url>
+            <loc>https://mrjoema.github.io/tech-blog/tags/data-pipeline/</loc><lastmod>2025-08-09T00:00:00&#43;00:00</lastmod></url><url>
+            <loc>https://mrjoema.github.io/tech-blog/</loc><lastmod>2025-08-09T00:00:00&#43;00:00</lastmod></url><url>
+            <loc>https://mrjoema.github.io/tech-blog/posts/</loc><lastmod>2025-08-09T00:00:00&#43;00:00</lastmod></url><url>
+            <loc>https://mrjoema.github.io/tech-blog/categories/software-engineering/</loc><lastmod>2025-08-09T00:00:00&#43;00:00</lastmod></url><url>
+            <loc>https://mrjoema.github.io/tech-blog/tags/</loc><lastmod>2025-08-09T00:00:00&#43;00:00</lastmod></url><url>
+            <loc>https://mrjoema.github.io/tech-blog/search/</loc></url></urlset>

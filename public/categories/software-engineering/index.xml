@@ -1,3 +1,21 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Software-Engineering on Joe Ma's Tech Blog</title><link>https://mrjoema.github.io/tech-blog/categories/software-engineering/</link><description>Recent content in Software-Engineering on Joe Ma's Tech Blog</description><generator>Hugo</generator><language>en-us</language><managingEditor>joema.dev@gamil.com (Joe Ma)</managingEditor><webMaster>joema.dev@gamil.com (Joe Ma)</webMaster><lastBuildDate>Sat, 09 Aug 2025 00:00:00 +0000</lastBuildDate><atom:link href="https://mrjoema.github.io/tech-blog/categories/software-engineering/index.xml" rel="self" type="application/rss+xml"/><item><title>Building a Data Pipeline Infrastructure That Scales with the Business</title><link>https://mrjoema.github.io/tech-blog/2025/08/building-a-data-pipeline-infrastructure-that-scales-with-the-business/</link><pubDate>Sat, 09 Aug 2025 00:00:00 +0000</pubDate><author>joema.dev@gamil.com (Joe Ma)</author><guid>https://mrjoema.github.io/tech-blog/2025/08/building-a-data-pipeline-infrastructure-that-scales-with-the-business/</guid><description>&lt;h2 id="overview">Overview&lt;/h2>
-&lt;p>In Big Tech companies, &lt;strong>processing massive volumes of data for annotation&lt;/strong> is essential for model training and model evaluation with human preferences (&lt;strong>RLHF&lt;/strong>). Frequent changes in data requirements make it critical to have an &lt;strong>infrastructure that enables rapid iteration&lt;/strong> without sacrificing stability or scalability.&lt;/p>
-&lt;p>While working with the eng organization, I observed recurring inefficiencies in our existing approach and initiated a series of alignment meetings to define a shared &lt;em>technical vision&lt;/em> and &lt;em>architectural direction&lt;/em>. Once aligned, each engineer took ownership of a specific area of the plan, enabling parallel implementation. Through this coordinated effort, we &lt;strong>rebuilt the data pipeline infrastructure from the ground up&lt;/strong>—scaling it to meet current needs and anticipate future growth.&lt;/p></description></item></channel></rss>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Software-Engineering on Joe Ma&#39;s Tech Blog</title>
+    <link>https://mrjoema.github.io/tech-blog/categories/software-engineering/</link>
+    <description>Recent content in Software-Engineering on Joe Ma&#39;s Tech Blog</description>
+    <generator>Hugo</generator>
+    <language>en-us</language>
+    <managingEditor>joema.dev@gamil.com (Joe Ma)</managingEditor>
+    <webMaster>joema.dev@gamil.com (Joe Ma)</webMaster>
+    <lastBuildDate>Sat, 09 Aug 2025 00:00:00 +0000</lastBuildDate>
+    <atom:link href="https://mrjoema.github.io/tech-blog/categories/software-engineering/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Building a Data Pipeline Infrastructure That Scales with the Business</title>
+      <link>https://mrjoema.github.io/tech-blog/2025/08/building-a-data-pipeline-infrastructure-that-scales-with-the-business/</link>
+      <pubDate>Sat, 09 Aug 2025 00:00:00 +0000</pubDate><author>joema.dev@gamil.com (Joe Ma)</author>
+      <guid>https://mrjoema.github.io/tech-blog/2025/08/building-a-data-pipeline-infrastructure-that-scales-with-the-business/</guid>
+      <description>&lt;h2 id=&#34;overview&#34;&gt;Overview&lt;/h2&gt;&#xA;&lt;p&gt;In Big Tech companies, &lt;strong&gt;processing massive volumes of data for annotation&lt;/strong&gt; is essential for model training and model evaluation with human preferences (&lt;strong&gt;RLHF&lt;/strong&gt;). Frequent changes in data requirements make it critical to have an &lt;strong&gt;infrastructure that enables rapid iteration&lt;/strong&gt; without sacrificing stability or scalability.&lt;/p&gt;&#xA;&lt;p&gt;While working with the eng organization, I observed recurring inefficiencies in our existing approach and initiated a series of alignment meetings to define a shared &lt;em&gt;technical vision&lt;/em&gt; and &lt;em&gt;architectural direction&lt;/em&gt;. Once aligned, each engineer took ownership of a specific area of the plan, enabling parallel implementation. Through this coordinated effort, we &lt;strong&gt;rebuilt the data pipeline infrastructure from the ground up&lt;/strong&gt;—scaling it to meet current needs and anticipate future growth.&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>

@@ -8,24 +8,26 @@
     {{- /* Google Analytics */ -}}
     {{- $google := $analytics.google.id | default site.Config.Services.GoogleAnalytics.ID | default site.Params.analytics.google.id -}}
     {{- with $google -}}
-        {{- if strings.HasPrefix (lower .) "ua-" -}}
-            {{- warnf "Google Analytics 4 (GA4) replaced Google Universal Analytics (UA) effective 1 July 2023. See https://support.google.com/analytics/answer/11583528. Create a GA4 property and data stream, then replace the Google Analytics ID in your site configuration with the new value." -}}
-        {{- else -}}
-            {{- $respectDoNotTrack := $analytics.google.respectDoNotTrack | default site.Config.Privacy.GoogleAnalytics.RespectDoNotTrack | default site.Params.analytics.google.respectDoNotTrack -}}
-            <script>
-                var doNotTrack = false;
-                if ({{ $respectDoNotTrack }}) {
-                    var dnt = (navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack);
-                    var doNotTrack = (dnt == "1" || dnt == "yes");
-                }
-                if (!doNotTrack) {
-                    window.dataLayer = window.dataLayer || [];
-                    function gtag(){dataLayer.push(arguments);}
-                    gtag('js', new Date());
-                    gtag('config', '{{ . }}');
-                }
-            </script>
-            {{- printf "https://www.googletagmanager.com/gtag/js?id=%v" . | dict "Async" true "Source" | partial "plugin/script.html" -}}
-        {{- end -}}
+        {{- $respectDoNotTrack := $analytics.google.respectDoNotTrack | default site.Config.Privacy.GoogleAnalytics.RespectDoNotTrack | default site.Params.analytics.google.respectDoNotTrack -}}
+        <!-- Google tag (gtag.js) -->
+        <script async src="https://www.googletagmanager.com/gtag/js?id={{ . }}"></script>
+        <script>
+        {{- if $respectDoNotTrack }}
+        var dnt, doNotTrack = false;
+        if ({{ $respectDoNotTrack }}) {
+            dnt = (navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack);
+            doNotTrack = (dnt == "1" || dnt == "yes");
+        }
+        if (!doNotTrack) {
+        {{- end }}
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+
+          gtag('config', '{{ . }}');
+        {{- if $respectDoNotTrack }}
+        }
+        {{- end }}
+        </script>
     {{- end -}}
 {{- end -}}

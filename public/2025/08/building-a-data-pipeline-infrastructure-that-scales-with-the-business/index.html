@@ -1,90 +1,443 @@
-<!doctype html><html lang=en-us><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta name=robots content="noodp"><title>Building a Data Pipeline Infrastructure That Scales with the Business - Joe Ma's Tech Blog</title><meta name=Description content="Systems, infra, ML, SDUI notes"><meta property="og:url" content="https://mrjoema.github.io/tech-blog/2025/08/building-a-data-pipeline-infrastructure-that-scales-with-the-business/"><meta property="og:site_name" content="Joe Ma's Tech Blog"><meta property="og:title" content="Building a Data Pipeline Infrastructure That Scales with the Business"><meta property="og:description" content="Overview In Big Tech companies, processing massive volumes of data for annotation is essential for model training and model evaluation with human preferences (RLHF). Frequent changes in data requirements make it critical to have an infrastructure that enables rapid iteration without sacrificing stability or scalability.
-While working with the eng organization, I observed recurring inefficiencies in our existing approach and initiated a series of alignment meetings to define a shared technical vision and architectural direction. Once aligned, each engineer took ownership of a specific area of the plan, enabling parallel implementation. Through this coordinated effort, we rebuilt the data pipeline infrastructure from the ground up—scaling it to meet current needs and anticipate future growth."><meta property="og:locale" content="en_us"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta property="article:published_time" content="2025-08-09T00:00:00+00:00"><meta property="article:modified_time" content="2025-08-09T00:00:00+00:00"><meta property="article:tag" content="Data-Pipeline"><meta property="article:tag" content="Data"><meta property="article:tag" content="Aiml"><meta property="article:tag" content="Annotation"><meta name=twitter:card content="summary"><meta name=twitter:title content="Building a Data Pipeline Infrastructure That Scales with the Business"><meta name=twitter:description content="Overview In Big Tech companies, processing massive volumes of data for annotation is essential for model training and model evaluation with human preferences (RLHF). Frequent changes in data requirements make it critical to have an infrastructure that enables rapid iteration without sacrificing stability or scalability.
-While working with the eng organization, I observed recurring inefficiencies in our existing approach and initiated a series of alignment meetings to define a shared technical vision and architectural direction. Once aligned, each engineer took ownership of a specific area of the plan, enabling parallel implementation. Through this coordinated effort, we rebuilt the data pipeline infrastructure from the ground up—scaling it to meet current needs and anticipate future growth."><meta name=application-name content="My cool site"><meta name=apple-mobile-web-app-title content="My cool site"><meta name=referrer content="no-referrer"><meta name=theme-color content="#ffffff"><meta name=msapplication-TileColor content="#da532c"><link rel="shortcut icon" type=image/x-icon href=/favicon.ico><link rel=icon type=image/png sizes=32x32 href=/favicon-32x32.png><link rel=icon type=image/png sizes=16x16 href=/favicon-16x16.png><link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png><link rel=mask-icon href=/safari-pinned-tab.svg color=#5bbad5><link rel=manifest href=/site.webmanifest><link rel=canonical href=https://mrjoema.github.io/tech-blog/2025/08/building-a-data-pipeline-infrastructure-that-scales-with-the-business/><link rel=stylesheet href=/tech-blog/css/style.min.css><link rel=preload href=https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.7.2/css/all.min.css as=style onload='this.onload=null,this.rel="stylesheet"'><noscript><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.7.2/css/all.min.css></noscript><link rel=preload href=https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css as=style onload='this.onload=null,this.rel="stylesheet"'><noscript><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css></noscript><script type=application/ld+json>{"@context":"http://schema.org","@type":"BlogPosting","headline":"Building a Data Pipeline Infrastructure That Scales with the Business","inLanguage":"en-us","mainEntityOfPage":{"@type":"WebPage","@id":"https:\/\/mrjoema.github.io\/tech-blog\/2025\/08\/building-a-data-pipeline-infrastructure-that-scales-with-the-business\/"},"genre":"posts","keywords":"data-pipeline, data, aiml, annotation","wordcount":1725,"url":"https:\/\/mrjoema.github.io\/tech-blog\/2025\/08\/building-a-data-pipeline-infrastructure-that-scales-with-the-business\/","datePublished":"2025-08-09T00:00:00+00:00","dateModified":"2025-08-09T00:00:00+00:00","publisher":{"@type":"Organization","name":""},"author":{"@type":"Person","name":"Joe Ma"},"description":""}</script></head><body data-header-desktop=fixed data-header-mobile=auto><script>(window.localStorage&&localStorage.getItem("theme")?localStorage.getItem("theme")==="dark":"auto"==="auto"?window.matchMedia("(prefers-color-scheme: dark)").matches:"auto"==="dark")&&document.body.setAttribute("theme","dark")</script><div id=mask></div><div class=wrapper><header class=desktop id=header-desktop><div class=header-wrapper><div class=header-title><a href=/tech-blog/ title="Joe Ma's Tech Blog">Joe Ma's Tech Blog</a></div><div class=menu><div class=menu-inner><a class=menu-item href=/tech-blog/posts/>Posts </a><a class=menu-item href=/tech-blog/about/>About </a><span class="menu-item delimiter"></span><span class="menu-item search" id=search-desktop>
-<input type=text placeholder=Search... id=search-input-desktop>
-<a href=javascript:void(0); class="search-button search-toggle" id=search-toggle-desktop title=Search><i class="fas fa-search fa-fw" aria-hidden=true></i>
-</a><a href=javascript:void(0); class="search-button search-clear" id=search-clear-desktop title=Clear><i class="fas fa-times-circle fa-fw" aria-hidden=true></i>
-</a><span class="search-button search-loading" id=search-loading-desktop><i class="fas fa-spinner fa-fw fa-spin" aria-hidden=true></i>
-</span></span><a href=javascript:void(0); class="menu-item theme-switch" title="Switch Theme"><i class="fas fa-adjust fa-fw" aria-hidden=true></i></a></div></div></div></header><header class=mobile id=header-mobile><div class=header-container><div class=header-wrapper><div class=header-title><a href=/tech-blog/ title="Joe Ma's Tech Blog">Joe Ma's Tech Blog</a></div><div class=menu-toggle id=menu-toggle-mobile><span></span><span></span><span></span></div></div><div class=menu id=menu-mobile><div class=search-wrapper><div class="search mobile" id=search-mobile><input type=text placeholder=Search... id=search-input-mobile>
-<a href=javascript:void(0); class="search-button search-toggle" id=search-toggle-mobile title=Search><i class="fas fa-search fa-fw" aria-hidden=true></i>
-</a><a href=javascript:void(0); class="search-button search-clear" id=search-clear-mobile title=Clear><i class="fas fa-times-circle fa-fw" aria-hidden=true></i>
-</a><span class="search-button search-loading" id=search-loading-mobile><i class="fas fa-spinner fa-fw fa-spin" aria-hidden=true></i></span></div><a href=javascript:void(0); class=search-cancel id=search-cancel-mobile>Cancel</a></div><a class=menu-item href=/tech-blog/posts/ title>Posts</a><a class=menu-item href=/tech-blog/about/ title>About</a><a href=javascript:void(0); class="menu-item theme-switch" title="Switch Theme">
-<i class="fas fa-adjust fa-fw" aria-hidden=true></i></a></div></div></header><div class="search-dropdown desktop"><div id=search-dropdown-desktop></div></div><div class="search-dropdown mobile"><div id=search-dropdown-mobile></div></div><main class=main><div class=container><div class=toc id=toc-auto><h2 class=toc-title>Contents</h2><div class=toc-content id=toc-content-auto></div></div><article class="page single"><h1 class="single-title animate__animated animate__flipInX">Building a Data Pipeline Infrastructure That Scales with the Business</h1><div class=post-meta><div class=post-meta-line><span class=post-author><a href=/tech-blog/ title=Author rel=author class=author><i class="fas fa-user-circle fa-fw" aria-hidden=true></i>Joe Ma</a></span>&nbsp;<span class=post-category>included in <a href=/tech-blog/categories/software-engineering/><i class="far fa-folder fa-fw" aria-hidden=true></i>Software-Engineering</a></span></div><div class=post-meta-line><i class="far fa-calendar-alt fa-fw" aria-hidden=true></i>&nbsp;<time datetime=2025-08-09>2025-08-09</time>&nbsp;<i class="fas fa-pencil-alt fa-fw" aria-hidden=true></i>&nbsp;1725 words&nbsp;
-<i class="far fa-clock fa-fw" aria-hidden=true></i>&nbsp;9 minutes&nbsp;</div></div><div class="details toc" id=toc-static data-kept><div class="details-summary toc-title"><span>Contents</span>
-<span><i class="details-icon fas fa-angle-right" aria-hidden=true></i></span></div><div class="details-content toc-content" id=toc-content-static><nav id=TableOfContents><ul><li><a href=#overview>Overview</a></li><li><a href=#the-challenge>The Challenge</a><ul><li><a href=#1-engineers-spending-excessive-time-managing-infrastructure>1. Engineers Spending Excessive Time Managing Infrastructure</a></li><li><a href=#2-broken-local-testing-environment-slowing-feedback-loops>2. Broken Local Testing Environment Slowing Feedback Loops</a></li><li><a href=#3-no-unified-protocol-or-framework-for-common-business-logic>3. No Unified Protocol or Framework for Common Business Logic</a></li><li><a href=#4-limited-data-pipeline-expertise-across-the-organization>4. Limited Data Pipeline Expertise Across the Organization</a></li></ul></li><li><a href=#technical-vision>Technical Vision</a><ul><li><a href=#1-eliminate-self-managed-aws-infrastructure>1. Eliminate Self-Managed AWS Infrastructure</a></li><li><a href=#2-provide-a-friendly-devdeployment-environment>2. Provide a Friendly Dev/Deployment Environment</a></li><li><a href=#3-align-pipeline-infrastructure-with-business-context>3. Align Pipeline Infrastructure with Business Context</a></li></ul></li><li><a href=#success-metrics>Success Metrics</a></li><li><a href=#high-level-architecture>High Level Architecture</a><ul><li><a href=#1-adopt-callback-pattern-to-enable-faster-iteration>1. Adopt Callback Pattern to Enable Faster Iteration</a></li><li><a href=#3-friendly-cicd-deployment-and-testing>3. Friendly CI/CD Deployment and Testing</a></li></ul></li><li><a href=#technical-discussion-and-tradeoff>Technical Discussion and Tradeoff</a><ul><li><a href=#1-excessive-python-based-callback-pattern-udf-creates-spark-job-overhead>1. Excessive Python-Based Callback Pattern (UDF) Creates Spark Job Overhead</a></li><li><a href=#2-state-based-tables-vs-event-based-tables>2. State-Based Tables vs. Event-Based Tables</a></li></ul></li><li><a href=#outcome>Outcome</a></li></ul></nav></div></div><div class=content id=content><h2 id=overview>Overview</h2><p>In Big Tech companies, <strong>processing massive volumes of data for annotation</strong> is essential for model training and model evaluation with human preferences (<strong>RLHF</strong>). Frequent changes in data requirements make it critical to have an <strong>infrastructure that enables rapid iteration</strong> without sacrificing stability or scalability.</p><p>While working with the eng organization, I observed recurring inefficiencies in our existing approach and initiated a series of alignment meetings to define a shared <em>technical vision</em> and <em>architectural direction</em>. Once aligned, each engineer took ownership of a specific area of the plan, enabling parallel implementation. Through this coordinated effort, we <strong>rebuilt the data pipeline infrastructure from the ground up</strong>—scaling it to meet current needs and anticipate future growth.</p><hr><h2 id=the-challenge>The Challenge</h2><p>Before we began the rebuild, I worked closely with the eng organization to surface pain points and map recurring patterns. <strong>Four key issues emerged:</strong></p><h3 id=1-engineers-spending-excessive-time-managing-infrastructure>1. Engineers Spending Excessive Time Managing Infrastructure</h3><p>Multiple AWS accounts and low-level resource management meant engineers had to invest heavily in <strong>DevOps concepts</strong>.<br>They often wrote extensive <strong>Pulumi</strong> code just to provision resources—<em>delaying any work on business logic</em>.</p><h3 id=2-broken-local-testing-environment-slowing-feedback-loops>2. Broken Local Testing Environment Slowing Feedback Loops</h3><p>Local testing was effectively broken due to <strong>persistent, hard-to-diagnose errors</strong>.<br>Each iteration required a <strong>full dev deployment</strong>, adding <em>over 3 minutes</em> before code could even be tested—multiplying delays across the team.</p><h3 id=3-no-unified-protocol-or-framework-for-common-business-logic>3. No Unified Protocol or Framework for Common Business Logic</h3><p>Although internal libraries existed for <strong>annotation upload/download</strong> and <strong>video perception</strong>, they offered <strong>limited abstraction</strong>.<br>Teams still wrote <strong>large amounts of repetitive PySpark boilerplate</strong> for similar workflows.</p><h3 id=4-limited-data-pipeline-expertise-across-the-organization>4. Limited Data Pipeline Expertise Across the Organization</h3><p>With most engineers coming from <strong>full-stack backgrounds</strong>, pipelines were often implemented without best practices—leading to <strong>slow runs</strong>, <strong>fragile error handling</strong>, and <strong>minimal operational insights</strong>.</p><p><img class=lazyload src=/tech-blog/svg/loading.min.svg data-src=/tech-blog/images/scale-pipeline-current-challenge.png data-srcset="/tech-blog/images/scale-pipeline-current-challenge.png, /tech-blog/images/scale-pipeline-current-challenge.png 1.5x, /tech-blog/images/scale-pipeline-current-challenge.png 2x" data-sizes=auto alt=/tech-blog/images/scale-pipeline-current-challenge.png title="Current Challenge" width=2498 height=1200></p><p>The image above shows the then-current pipeline landscape. As you can see, <strong>cross-project leverage was minimal</strong>, and each pipeline operated in isolation—often <strong>reinventing the same data pipeline logic</strong>.<br>This fragmentation resulted in <strong>inconsistent standards</strong> and <strong>noticeable discrepancies</strong> in pipeline quality.</p><hr><h2 id=technical-vision>Technical Vision</h2><h3 id=1-eliminate-self-managed-aws-infrastructure>1. Eliminate Self-Managed AWS Infrastructure</h3><p>Migrate from individually managed AWS accounts to the <strong>internal data platform</strong>, which provides <strong>higher-level abstractions</strong> for Airflow, Kubernetes, Spark, and Iceberg—removing the need to handle <strong>infrastructure provisioning</strong>, <strong>IAM</strong>, and other low-level configs.</p><h3 id=2-provide-a-friendly-devdeployment-environment>2. Provide a Friendly Dev/Deployment Environment</h3><p>Offer <strong>robust local</strong> and <strong>isolated cloud</strong> test environments to prevent deployment conflicts.<br>Automate promotions across dev, test, and prod to eliminate repetitive manual steps.</p><h3 id=3-align-pipeline-infrastructure-with-business-context>3. Align Pipeline Infrastructure with Business Context</h3><p>Build a <strong>high-level framework</strong> to orchestrate RLHF data pipelines with minimal effort.<br>Embedding business context enables <strong>faster iteration</strong> and <strong>adaptation</strong> to evolving data needs.</p><hr><h2 id=success-metrics>Success Metrics</h2><ul><li><strong>MVP delivered</strong> and integrated with a new data pipeline project.</li><li><strong>One existing pipeline successfully migrated</strong> to the new infrastructure.</li><li><strong>Boilerplate tasks eliminated</strong> (e.g., asset download/upload, metadata table bootstrap) through framework-level code, reducing the need for engineers to focus on Spark best practices.</li><li><strong>Developer experience improved</strong> via robust local testing, isolated cloud test environments, and enforced linting/best practices (e.g., <code>pylint</code>).</li></ul><hr><h2 id=high-level-architecture>High Level Architecture</h2><p><img class=lazyload src=/tech-blog/svg/loading.min.svg data-src=/tech-blog/images/scale-pipeline-high-level-architecture.png data-srcset="/tech-blog/images/scale-pipeline-high-level-architecture.png, /tech-blog/images/scale-pipeline-high-level-architecture.png 1.5x, /tech-blog/images/scale-pipeline-high-level-architecture.png 2x" data-sizes=auto alt=/tech-blog/images/scale-pipeline-high-level-architecture.png title="High Level Architecture" width=2172 height=2044></p><h3 id=1-adopt-callback-pattern-to-enable-faster-iteration>1. Adopt Callback Pattern to Enable Faster Iteration</h3><p>RLHF pipelines follow a <strong>common workflow</strong>:</p><div class="code-block code-line-numbers open" style="counter-reset:code-block 0"><div class="code-header language-"><span class=code-title><i class="arrow fas fa-angle-right fa-fw" aria-hidden=true></i></span>
-<span class=ellipses><i class="fas fa-ellipsis-h fa-fw" aria-hidden=true></i></span>
-<span class=copy title="Copy to clipboard"><i class="far fa-copy fa-fw" aria-hidden=true></i></span></div><div class=highlight><pre tabindex=0 class=chroma><code class=language-gdscript3 data-lang=gdscript3><span class=line><span class=cl><span class=mf>1.</span> <span class=n>Asset</span> <span class=n>ingestion</span>
-</span></span><span class=line><span class=cl><span class=mf>2.</span> <span class=n>Asset</span> <span class=n>processing</span> <span class=o>/</span> <span class=n>pre</span><span class=o>-</span><span class=n>annotation</span>
-</span></span><span class=line><span class=cl><span class=mf>3.</span> <span class=n>Annotation</span> <span class=n>platform</span> <span class=n>upload</span>
-</span></span><span class=line><span class=cl><span class=mf>4.</span> <span class=n>Annotated</span> <span class=n>result</span> <span class=n>processing</span>
-</span></span><span class=line><span class=cl><span class=mf>5.</span> <span class=n>Dataset</span> <span class=n>generation</span></span></span></code></pre></div></div><p>We adopt a <strong>callback pattern</strong> to <strong>abstract these stages</strong>, eliminating repetitive logic and enabling faster iteration.<br>Common tasks—such as <strong>Spark-based DataFrame processing</strong> and <strong>parallelized asset handling</strong>—are encapsulated, with <strong>extensible UDF callbacks</strong> allowing engineers from <em>full-stack backgrounds</em> to easily implement custom Python logic.</p><hr><h4 id=example-pre-annotation-spark-job-row-oriented-callback-with-external-tools>Example: Pre-Annotation Spark Job (Row-Oriented Callback with External Tools)</h4><p>This example shows a <strong>row-oriented callback</strong> where each row is passed as a <strong>Python object (dict)</strong> to user code. The callback is free to invoke libraries like <strong>ffmpeg</strong> (via <code>subprocess</code>) to transform or enrich the data. We use <code>mapPartitions</code> to minimize per-row overhead and allow <strong>batch setup/teardown</strong> in each executor process.</p><h6 id=pre-annotation-job-skeleton>Pre-Annotation Job (skeleton)</h6><div class="code-block code-line-numbers open" style="counter-reset:code-block 0"><div class="code-header language-python"><span class=code-title><i class="arrow fas fa-angle-right fa-fw" aria-hidden=true></i></span>
-<span class=ellipses><i class="fas fa-ellipsis-h fa-fw" aria-hidden=true></i></span>
-<span class=copy title="Copy to clipboard"><i class="far fa-copy fa-fw" aria-hidden=true></i></span></div><div class=highlight><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=c1># pre_annotate_job.py  (skeleton)</span>
-</span></span><span class=line><span class=cl><span class=c1># 1) start SparkSession</span>
-</span></span><span class=line><span class=cl><span class=c1># 2) read input DataFrame (assets)</span>
-</span></span><span class=line><span class=cl><span class=c1># 3) load callback from env: CALLBACK_FILE</span>
-</span></span><span class=line><span class=cl><span class=c1># 4) mapPartitions -&gt; for each row (as dict), call callback.process_row(row)</span>
-</span></span><span class=line><span class=cl><span class=c1># 5) create DataFrame from results, write to output</span>
-</span></span><span class=line><span class=cl>
-</span></span><span class=line><span class=cl><span class=c1># NOTE: All non-essential details omitted on purpose.</span></span></span></code></pre></div></div><hr><h5 id=callback-only-process_row-matters>Callback (only <code>process_row</code> matters)</h5><div class="code-block code-line-numbers open" style="counter-reset:code-block 0"><div class="code-header language-python"><span class=code-title><i class="arrow fas fa-angle-right fa-fw" aria-hidden=true></i></span>
-<span class=ellipses><i class="fas fa-ellipsis-h fa-fw" aria-hidden=true></i></span>
-<span class=copy title="Copy to clipboard"><i class="far fa-copy fa-fw" aria-hidden=true></i></span></div><div class=highlight><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=c1># my_callback.py</span>
-</span></span><span class=line><span class=cl><span class=kn>from</span> <span class=nn>typing</span> <span class=kn>import</span> <span class=n>Dict</span><span class=p>,</span> <span class=n>Any</span><span class=p>,</span> <span class=n>Optional</span>
-</span></span><span class=line><span class=cl><span class=kn>import</span> <span class=nn>hashlib</span>
-</span></span><span class=line><span class=cl><span class=c1># Optional: import subprocess to call external tools like ffmpeg</span>
-</span></span><span class=line><span class=cl><span class=c1># import subprocess</span>
-</span></span><span class=line><span class=cl>
-</span></span><span class=line><span class=cl><span class=k>class</span> <span class=nc>Callbacks</span><span class=p>:</span>
-</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>process_row</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>row</span><span class=p>:</span> <span class=n>Dict</span><span class=p>[</span><span class=nb>str</span><span class=p>,</span> <span class=n>Any</span><span class=p>])</span> <span class=o>-&gt;</span> <span class=n>Optional</span><span class=p>[</span><span class=n>Dict</span><span class=p>[</span><span class=nb>str</span><span class=p>,</span> <span class=n>Any</span><span class=p>]]:</span>
-</span></span><span class=line><span class=cl>        <span class=s2>&#34;&#34;&#34;Transform a single row (plain Python dict). Return a dict or None to drop.&#34;&#34;&#34;</span>
-</span></span><span class=line><span class=cl>        <span class=n>video_id</span> <span class=o>=</span> <span class=n>row</span><span class=o>.</span><span class=n>get</span><span class=p>(</span><span class=s2>&#34;videoId&#34;</span><span class=p>)</span>
-</span></span><span class=line><span class=cl>        <span class=n>url</span> <span class=o>=</span> <span class=n>row</span><span class=o>.</span><span class=n>get</span><span class=p>(</span><span class=s2>&#34;url&#34;</span><span class=p>)</span>
-</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=ow>not</span> <span class=n>video_id</span> <span class=ow>or</span> <span class=ow>not</span> <span class=n>url</span><span class=p>:</span>
-</span></span><span class=line><span class=cl>            <span class=k>return</span> <span class=kc>None</span>
-</span></span><span class=line><span class=cl>
-</span></span><span class=line><span class=cl>        <span class=c1># Example: derive a stable request id</span>
-</span></span><span class=line><span class=cl>        <span class=n>request_id</span> <span class=o>=</span> <span class=n>hashlib</span><span class=o>.</span><span class=n>sha256</span><span class=p>(</span><span class=nb>str</span><span class=p>(</span><span class=n>video_id</span><span class=p>)</span><span class=o>.</span><span class=n>encode</span><span class=p>(</span><span class=s2>&#34;utf-8&#34;</span><span class=p>))</span><span class=o>.</span><span class=n>hexdigest</span><span class=p>()</span>
-</span></span><span class=line><span class=cl>
-</span></span><span class=line><span class=cl>        <span class=c1># Example (optional): call external tools such as ffmpeg</span>
-</span></span><span class=line><span class=cl>        <span class=c1># subprocess.run([&#34;ffmpeg&#34;, &#34;-i&#34;, url, &#34;-t&#34;, &#34;1&#34;, &#34;-f&#34;, &#34;null&#34;, &#34;-&#34;], check=False)</span>
-</span></span><span class=line><span class=cl>
-</span></span><span class=line><span class=cl>        <span class=c1># Return only what the annotation platform needs</span>
-</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=p>{</span>
-</span></span><span class=line><span class=cl>            <span class=s2>&#34;video_id&#34;</span><span class=p>:</span> <span class=nb>str</span><span class=p>(</span><span class=n>video_id</span><span class=p>),</span>
-</span></span><span class=line><span class=cl>            <span class=s2>&#34;asset_url&#34;</span><span class=p>:</span> <span class=n>url</span><span class=p>,</span>
-</span></span><span class=line><span class=cl>            <span class=s2>&#34;request_id&#34;</span><span class=p>:</span> <span class=n>request_id</span><span class=p>,</span>
-</span></span><span class=line><span class=cl>        <span class=p>}</span></span></span></code></pre></div></div><hr><h5 id=spark-on-k8s-passing-the-callback-path>Spark on K8s (passing the callback path)</h5><div class="code-block code-line-numbers open" style="counter-reset:code-block 0"><div class="code-header language-yaml"><span class=code-title><i class="arrow fas fa-angle-right fa-fw" aria-hidden=true></i></span>
-<span class=ellipses><i class="fas fa-ellipsis-h fa-fw" aria-hidden=true></i></span>
-<span class=copy title="Copy to clipboard"><i class="far fa-copy fa-fw" aria-hidden=true></i></span></div><div class=highlight><pre tabindex=0 class=chroma><code class=language-yaml data-lang=yaml><span class=line><span class=cl><span class=c># sparkapplication.yaml  (only the relevant env var shown)</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>apiVersion</span><span class=p>:</span><span class=w> </span><span class=l>sparkoperator.k8s.io/v1beta2</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>kind</span><span class=p>:</span><span class=w> </span><span class=l>SparkApplication</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>metadata</span><span class=p>:</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>rlhf-pre-annotate</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>spec</span><span class=p>:</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>type</span><span class=p>:</span><span class=w> </span><span class=l>Python</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>mainApplicationFile</span><span class=p>:</span><span class=w> </span><span class=l>local:///opt/app/pre_annotate_job.py</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>driver</span><span class=p>:</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>env</span><span class=p>:</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>      </span>- <span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>CALLBACK_FILE</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>value</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;/opt/app/my_callback.py&#34;</span><span class=w>   </span><span class=c># &lt;-- point to your callback</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>executor</span><span class=p>:</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>env</span><span class=p>:</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>      </span>- <span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>CALLBACK_FILE</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>value</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;/opt/app/my_callback.py&#34;</span></span></span></code></pre></div></div><p>The diagram below illustrates how engineers can leverage the framework using custom callbacks.</p><p><img class=lazyload src=/tech-blog/svg/loading.min.svg data-src=/tech-blog/images/scale-pipeline-modualized-job.png data-srcset="/tech-blog/images/scale-pipeline-modualized-job.png, /tech-blog/images/scale-pipeline-modualized-job.png 1.5x, /tech-blog/images/scale-pipeline-modualized-job.png 2x" data-sizes=auto alt=/tech-blog/images/scale-pipeline-modualized-job.png title="Modualzied job with custom callback" width=3212 height=2067></p><h3 id=3-friendly-cicd-deployment-and-testing>3. Friendly CI/CD Deployment and Testing</h3><p>As shown in the diagram below, we simplify our environment model to <strong>two core environments</strong>—<strong>dev</strong> and <strong>prod</strong>—removing unused staging and test environments.</p><p>All commits pushed to a <strong>feature branch</strong> trigger an <strong>automatic sandbox deployment</strong> in an <strong>isolated environment</strong> managed by the internal data platform and running in the <strong>shared dev Kubernetes cluster</strong>.</p><p><strong>Benefits:</strong></p><ul><li><strong>Fast feedback loops</strong> for feature development.</li><li><strong>Isolation</strong> between engineers’ work to avoid cross-branch interference.</li><li><strong>Automatic promotion</strong> to production when changes are merged into <code>main</code>.</li></ul><p><img class=lazyload src=/tech-blog/svg/loading.min.svg data-src=/tech-blog/images/scale-pipeline-cicd.png data-srcset="/tech-blog/images/scale-pipeline-cicd.png, /tech-blog/images/scale-pipeline-cicd.png 1.5x, /tech-blog/images/scale-pipeline-cicd.png 2x" data-sizes=auto alt=/tech-blog/images/scale-pipeline-cicd.png title="CICD / Sandbox Setup" width=1531 height=778></p><p>For even faster iteration, engineers can run a <strong>local testing script</strong> that executes PySpark code inside a <strong>containerized environment</strong> on their local machine, allowing them to validate changes before pushing to the feature branch.</p><h2 id=technical-discussion-and-tradeoff>Technical Discussion and Tradeoff</h2><h3 id=1-excessive-python-based-callback-pattern-udf-creates-spark-job-overhead>1. Excessive Python-Based Callback Pattern (UDF) Creates Spark Job Overhead</h3><p>When engineers implement callbacks in Python, Spark must invoke them as UDFs (user-defined functions). This creates a <strong>cross-language execution path</strong> between the JVM (where Spark core runs) and the Python process (where the callback code runs).</p><p>As shown in the diagram below, every UDF call requires:</p><ol><li><strong>Serialization</strong> of data from the JVM into Python-compatible objects.</li><li><strong>Transfer</strong> of that data through the Py4J socket bridge.</li><li><strong>Execution</strong> of the Python callback logic.</li><li><strong>Serialization back</strong> from Python to JVM objects.</li></ol><p>While this overhead can become a bottleneck at scale (e.g., millions of rows), there is <strong>no requirement for the data to arrive at extremely precise delivery times</strong>. Given this, our <strong>first priority is enabling full-stack engineers to deliver quickly</strong>, and we consciously accept this trade-off.</p><p>Rather than investing significant effort in educating engineers on data pipeline best practices, we built a <strong>framework</strong> that abstracts away Spark complexity and empowers them to implement their business logic in familiar Python code.</p><p><img class=lazyload src=/tech-blog/svg/loading.min.svg data-src=/tech-blog/images/scale-pipeline-process.jpg data-srcset="/tech-blog/images/scale-pipeline-process.jpg, /tech-blog/images/scale-pipeline-process.jpg 1.5x, /tech-blog/images/scale-pipeline-process.jpg 2x" data-sizes=auto alt=/tech-blog/images/scale-pipeline-process.jpg title="python vs spark process" width=744 height=324></p><p><strong>Key takeaways:</strong></p><ul><li>Python callbacks run inside the <strong>Python process</strong>, requiring all data to cross the JVM↔Python boundary.</li><li>In our case, the performance cost is acceptable given the data volume, lack of strict delivery-time requirements, and our goal of rapid feature delivery.</li><li>The framework allows engineers to focus on business logic while the platform handles orchestration, scaling, and data movement.</li></ul><h3 id=2-state-based-tables-vs-event-based-tables>2. State-Based Tables vs. Event-Based Tables</h3><p>During migration, we refactored the pipeline for <strong>parallel execution</strong>. This introduced <strong>concurrent writes</strong> to an Iceberg table, resulting in <strong>commit conflicts</strong> (Iceberg uses optimistic concurrency with snapshot isolation). When multiple jobs write overlapping files or partitions and attempt to <strong>commit against the same snapshot lineage</strong>, Iceberg rejects one or more commits.</p><p>This prompted a discussion on <strong>table design strategy</strong>. While append-only tables are the industry norm in data engineering—and are well-supported by Iceberg—we ultimately chose a <strong>state-based design</strong> for this case. To mitigate concurrent write conflicts, we implemented a <strong>generic merge job</strong> that consolidates all temporary tables produced by parallel jobs into the target table, adding extra columns as needed.</p><p><strong>The main reasons we chose state-based design:</strong></p><ul><li><strong>Latest data access:</strong> Our queries always rely on the most up-to-date state, making state tables a better fit for our workload.</li><li><strong>Team familiarity:</strong> All engineers have a full-stack background, and adopting append-only style would add overhead for them to adapt to the event-sourced mental model.</li><li><strong>Reduced downstream complexity:</strong> Append style shifts the cost to downstream queries and dashboards, requiring careful handling of “latest record” logic and schema versioning. Frequent schema changes from evolving business requirements can easily break these consumers.</li></ul><hr><p><strong>Example: Merging temporary tables into the base table (Upsert with new columns)</strong></p><div class="code-block code-line-numbers open" style="counter-reset:code-block 0"><div class="code-header language-sql"><span class=code-title><i class="arrow fas fa-angle-right fa-fw" aria-hidden=true></i></span>
-<span class=ellipses><i class="fas fa-ellipsis-h fa-fw" aria-hidden=true></i></span>
-<span class=copy title="Copy to clipboard"><i class="far fa-copy fa-fw" aria-hidden=true></i></span></div><div class=highlight><pre tabindex=0 class=chroma><code class=language-sql data-lang=sql><span class=line><span class=cl><span class=n>MERGE</span><span class=w> </span><span class=k>INTO</span><span class=w> </span><span class=n>prod</span><span class=p>.</span><span class=n>main_table</span><span class=w> </span><span class=k>AS</span><span class=w> </span><span class=n>target</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=k>USING</span><span class=w> </span><span class=p>(</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>SELECT</span><span class=w> </span><span class=o>*</span><span class=w> </span><span class=k>FROM</span><span class=w> </span><span class=n>tmp_table_1</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>UNION</span><span class=w> </span><span class=k>ALL</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>SELECT</span><span class=w> </span><span class=o>*</span><span class=w> </span><span class=k>FROM</span><span class=w> </span><span class=n>tmp_table_2</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>UNION</span><span class=w> </span><span class=k>ALL</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>SELECT</span><span class=w> </span><span class=o>*</span><span class=w> </span><span class=k>FROM</span><span class=w> </span><span class=n>tmp_table_3</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=p>)</span><span class=w> </span><span class=k>AS</span><span class=w> </span><span class=k>source</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=k>ON</span><span class=w> </span><span class=n>target</span><span class=p>.</span><span class=n>id</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=k>source</span><span class=p>.</span><span class=n>id</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=k>WHEN</span><span class=w> </span><span class=n>MATCHED</span><span class=w> </span><span class=k>THEN</span><span class=w> </span><span class=k>UPDATE</span><span class=w> </span><span class=k>SET</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>target</span><span class=p>.</span><span class=n>col_a</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=k>source</span><span class=p>.</span><span class=n>col_a</span><span class=p>,</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>target</span><span class=p>.</span><span class=n>col_b</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=k>source</span><span class=p>.</span><span class=n>col_b</span><span class=p>,</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>target</span><span class=p>.</span><span class=n>new_col_c</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=k>source</span><span class=p>.</span><span class=n>new_col_c</span><span class=p>,</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>target</span><span class=p>.</span><span class=n>updated_at</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=k>current_timestamp</span><span class=p>()</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=k>WHEN</span><span class=w> </span><span class=k>NOT</span><span class=w> </span><span class=n>MATCHED</span><span class=w> </span><span class=k>THEN</span><span class=w> </span><span class=k>INSERT</span><span class=w> </span><span class=o>*</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=p>;</span></span></span></code></pre></div></div><p><strong>Note:</strong> We will revisit the table design next quarter after observing the system in production. The current state-based approach addresses immediate concurrency and downstream complexity, but Iceberg’s native features—such as schema and partition evolution, time-travel, equality/position deletes with merge-on-read semantics, and <code>MERGE INTO</code>—may mitigate several drawbacks of an append-only model. We’ll re-evaluate with production metrics (e.g., commit conflict rate, merge job runtime, query latency/cost) before making a long-term decision.</p><h2 id=outcome>Outcome</h2><p>This initiative transformed a fragmented, slow-moving RLHF data pipeline ecosystem into a <strong>scalable, developer-friendly platform</strong> aligned with evolving business needs.<br>I took the <strong>initiative to surface key pain points</strong>, drove <strong>cross-team alignment</strong>, and <strong>authored the technical vision and architectural direction</strong> that guided parallel implementation across a 10+ engineer org. Key results from the collective effort include:</p><ul><li><strong>Infrastructure modernization</strong> — Migrated from self-managed AWS resources to an internal high-level data platform, eliminating DevOps overhead for engineers.</li><li><strong>Developer experience boost</strong> — Enabled robust local and isolated cloud testing, automated environment promotions, and simplified CI/CD workflows.</li><li><strong>Framework-driven productivity</strong> — Introduced a <strong>callback-based orchestration pattern</strong>, abstracting Spark complexity so full-stack engineers could contribute business logic in familiar Python.</li><li><strong>Table strategy for concurrency</strong> — Resolved Iceberg commit conflicts via a <strong>state-based table design</strong> and generic merge process, while laying the groundwork for potential re-adoption of append-only with Iceberg’s native capabilities.</li><li><strong>Measured trade-offs</strong> — Accepted Python UDF overhead to maximize iteration speed, knowing delivery-time precision was not business-critical.</li></ul><p><strong>Impact:</strong><br>By setting the direction and enabling coordinated execution, I accelerated iteration cycles, reduced boilerplate, standardized pipeline quality, and positioned the org to scale data processing capacity for future model training demands.</p></div><div class=post-footer id=post-footer><div class=post-info><div class=post-info-line><div class=post-info-mod><span>Updated on 2025-08-09</span></div></div><div class=post-info-line><div class=post-info-md></div><div class=post-info-share><span><a href=javascript:void(0); title="Share on X" data-sharer=x data-url=https://mrjoema.github.io/tech-blog/2025/08/building-a-data-pipeline-infrastructure-that-scales-with-the-business/ data-title="Building a Data Pipeline Infrastructure That Scales with the Business" data-hashtags=data-pipeline,data,aiml,annotation><i class="fab fa-x-twitter fa-fw" aria-hidden=true></i></a><a href=javascript:void(0); title="Share on Threads" data-sharer=threads data-url=https://mrjoema.github.io/tech-blog/2025/08/building-a-data-pipeline-infrastructure-that-scales-with-the-business/ data-title="Building a Data Pipeline Infrastructure That Scales with the Business"><i class="fab fa-threads fa-fw" aria-hidden=true></i></a><a href=javascript:void(0); title="Share on Facebook" data-sharer=facebook data-url=https://mrjoema.github.io/tech-blog/2025/08/building-a-data-pipeline-infrastructure-that-scales-with-the-business/ data-hashtag=data-pipeline><i class="fab fa-facebook-square fa-fw" aria-hidden=true></i></a><a href=javascript:void(0); title="Share on Hacker News" data-sharer=hackernews data-url=https://mrjoema.github.io/tech-blog/2025/08/building-a-data-pipeline-infrastructure-that-scales-with-the-business/ data-title="Building a Data Pipeline Infrastructure That Scales with the Business"><i class="fab fa-hacker-news fa-fw" aria-hidden=true></i></a><a href=javascript:void(0); title="Share on Line" data-sharer=line data-url=https://mrjoema.github.io/tech-blog/2025/08/building-a-data-pipeline-infrastructure-that-scales-with-the-business/ data-title="Building a Data Pipeline Infrastructure That Scales with the Business"><i data-svg-src=https://cdn.jsdelivr.net/npm/simple-icons@14.9.0/icons/line.svg aria-hidden=true></i></a><a href=javascript:void(0); title="Share on 微博" data-sharer=weibo data-url=https://mrjoema.github.io/tech-blog/2025/08/building-a-data-pipeline-infrastructure-that-scales-with-the-business/ data-title="Building a Data Pipeline Infrastructure That Scales with the Business"><i class="fab fa-weibo fa-fw" aria-hidden=true></i></a><a href=javascript:void(0); title="Share on Diaspora" data-sharer=diaspora data-url=https://mrjoema.github.io/tech-blog/2025/08/building-a-data-pipeline-infrastructure-that-scales-with-the-business/ data-title="Building a Data Pipeline Infrastructure That Scales with the Business" data-description><i class="fab fa-diaspora fa-fw" aria-hidden=true></i></a><a href="https://t.me/share/url?url=https%3a%2f%2fmrjoema.github.io%2ftech-blog%2f2025%2f08%2fbuilding-a-data-pipeline-infrastructure-that-scales-with-the-business%2f&amp;text=Building%20a%20Data%20Pipeline%20Infrastructure%20That%20Scales%20with%20the%20Business" target=_blank title="Share on Telegram"><i class="fab fa-telegram fa-fw" aria-hidden=true></i></a></span></div></div></div><div class=post-info-more><section class=post-tags><i class="fas fa-tags fa-fw" aria-hidden=true></i>&nbsp;<a href=/tech-blog/tags/data-pipeline/>Data-Pipeline</a>,&nbsp;<a href=/tech-blog/tags/data/>Data</a>,&nbsp;<a href=/tech-blog/tags/aiml/>Aiml</a>,&nbsp;<a href=/tech-blog/tags/annotation/>Annotation</a></section><section><span><a href=javascript:void(0); onclick=window.history.back()>Back</a></span>&nbsp;|&nbsp;<span><a href=/tech-blog/>Home</a></span></section></div><div class=post-nav></div></div></article></div></main><footer class=footer><div class=footer-container><div class=footer-line>Powered by <a href=https://gohugo.io/ target=_blank rel="noopener noreffer" title="Hugo 0.148.2">Hugo</a> | Theme - <a href=https://github.com/dillonzq/LoveIt target=_blank rel="noopener noreffer" title="LoveIt 0.3.1-DEV"><i class="far fa-kiss-wink-heart fa-fw" aria-hidden=true></i> LoveIt</a></div><div class=footer-line itemscope itemtype=http://schema.org/CreativeWork><i class="far fa-copyright fa-fw" aria-hidden=true></i><span itemprop=copyrightYear>2022 - 2025</span><span class=author itemprop=copyrightHolder>&nbsp;<a href=/tech-blog/ target=_blank>Joe Ma</a></span></div></div></footer></div><div id=fixed-buttons><a href=# id=back-to-top class=fixed-button title="Back to Top"><i class="fas fa-arrow-up fa-fw" aria-hidden=true></i></a></div><div id=fixed-buttons-hidden><a href=# id=view-comments class=fixed-button title="View Comments"><i class="fas fa-comment fa-fw" aria-hidden=true></i></a></div><script src=https://cdn.jsdelivr.net/npm/autocomplete.js@0.38.1/dist/autocomplete.min.js></script><script src=https://cdn.jsdelivr.net/npm/lunr@2.3.9/lunr.min.js></script><script src=https://cdn.jsdelivr.net/npm/lazysizes@5.3.2/lazysizes.min.js></script><script src=https://cdn.jsdelivr.net/npm/clipboard@2.0.11/dist/clipboard.min.js></script><script src=https://cdn.jsdelivr.net/npm/sharer.js@0.5.2/sharer.min.js></script><script>window.config={comment:{},search:{highlightTag:"em",lunrIndexURL:"/tech-blog/index.json",maxResultLength:10,noResultsFound:"No results found",snippetLength:30,type:"lunr"}}</script><script src=/tech-blog/js/theme.min.js></script><script>var dnt,doNotTrack=!1;if(!1&&(dnt=navigator.doNotTrack||window.doNotTrack||navigator.msDoNotTrack,doNotTrack=dnt=="1"||dnt=="yes"),!doNotTrack){window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag("js",new Date),gtag("config","G-8JE61YLR41")}</script><script src="https://www.googletagmanager.com/gtag/js?id=G-8JE61YLR41" async></script></body></html>
+<!DOCTYPE html>
+<html lang="en-us">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="robots" content="noodp" />
+        <title>Building a Data Pipeline Infrastructure That Scales with the Business - Joe Ma&#39;s Tech Blog</title><meta name="Description" content="Systems, infra, ML, SDUI notes"><meta property="og:url" content="https://mrjoema.github.io/tech-blog/2025/08/building-a-data-pipeline-infrastructure-that-scales-with-the-business/">
+  <meta property="og:site_name" content="Joe Ma&#39;s Tech Blog">
+  <meta property="og:title" content="Building a Data Pipeline Infrastructure That Scales with the Business">
+  <meta property="og:description" content="Overview In Big Tech companies, processing massive volumes of data for annotation is essential for model training and model evaluation with human preferences (RLHF). Frequent changes in data requirements make it critical to have an infrastructure that enables rapid iteration without sacrificing stability or scalability.
+While working with the eng organization, I observed recurring inefficiencies in our existing approach and initiated a series of alignment meetings to define a shared technical vision and architectural direction. Once aligned, each engineer took ownership of a specific area of the plan, enabling parallel implementation. Through this coordinated effort, we rebuilt the data pipeline infrastructure from the ground up—scaling it to meet current needs and anticipate future growth.">
+  <meta property="og:locale" content="en_us">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2025-08-09T00:00:00+00:00">
+    <meta property="article:modified_time" content="2025-08-09T00:00:00+00:00">
+    <meta property="article:tag" content="Data-Pipeline">
+    <meta property="article:tag" content="Data">
+    <meta property="article:tag" content="Aiml">
+    <meta property="article:tag" content="Annotation">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Building a Data Pipeline Infrastructure That Scales with the Business">
+  <meta name="twitter:description" content="Overview In Big Tech companies, processing massive volumes of data for annotation is essential for model training and model evaluation with human preferences (RLHF). Frequent changes in data requirements make it critical to have an infrastructure that enables rapid iteration without sacrificing stability or scalability.
+While working with the eng organization, I observed recurring inefficiencies in our existing approach and initiated a series of alignment meetings to define a shared technical vision and architectural direction. Once aligned, each engineer took ownership of a specific area of the plan, enabling parallel implementation. Through this coordinated effort, we rebuilt the data pipeline infrastructure from the ground up—scaling it to meet current needs and anticipate future growth.">
+<meta name="application-name" content="My cool site">
+<meta name="apple-mobile-web-app-title" content="My cool site">
+<meta name="referrer" content="no-referrer" /><meta name="theme-color" content="#ffffff"><meta name="msapplication-TileColor" content="#da532c"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5"><link rel="manifest" href="/site.webmanifest"><link rel="canonical" href="https://mrjoema.github.io/tech-blog/2025/08/building-a-data-pipeline-infrastructure-that-scales-with-the-business/" /><link rel="stylesheet" href="/tech-blog/css/style.min.css"><link rel="preload" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.7.2/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+        <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.7.2/css/all.min.css"></noscript><link rel="preload" href="https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+        <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css"></noscript><script type="application/ld+json">
+    {
+        "@context": "http://schema.org",
+        "@type": "BlogPosting",
+        "headline": "Building a Data Pipeline Infrastructure That Scales with the Business",
+        "inLanguage": "en-us",
+        "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": "https:\/\/mrjoema.github.io\/tech-blog\/2025\/08\/building-a-data-pipeline-infrastructure-that-scales-with-the-business\/"
+        },"genre": "posts","keywords": "data-pipeline, data, aiml, annotation","wordcount":  1725 ,
+        "url": "https:\/\/mrjoema.github.io\/tech-blog\/2025\/08\/building-a-data-pipeline-infrastructure-that-scales-with-the-business\/","datePublished": "2025-08-09T00:00:00+00:00","dateModified": "2025-08-09T00:00:00+00:00","publisher": {
+            "@type": "Organization",
+            "name": ""},"author": {
+                "@type": "Person",
+                "name": "Joe Ma"
+            },"description": ""
+    }
+    </script></head>
+    <body data-header-desktop="fixed" data-header-mobile="auto"><script>(window.localStorage && localStorage.getItem('theme') ? localStorage.getItem('theme') === 'dark' : ('auto' === 'auto' ? window.matchMedia('(prefers-color-scheme: dark)').matches : 'auto' === 'dark')) && document.body.setAttribute('theme', 'dark');</script>
+
+        <div id="mask"></div><div class="wrapper"><header class="desktop" id="header-desktop">
+    <div class="header-wrapper">
+        <div class="header-title">
+            <a href="/tech-blog/" title="Joe Ma&#39;s Tech Blog">Joe Ma&#39;s Tech Blog</a>
+        </div>
+        <div class="menu">
+            <div class="menu-inner"><a class="menu-item" href="/tech-blog/posts/"> Posts </a><a class="menu-item" href="/tech-blog/about/"> About </a><span class="menu-item delimiter"></span><span class="menu-item search" id="search-desktop">
+                        <input type="text" placeholder="Search..." id="search-input-desktop">
+                        <a href="javascript:void(0);" class="search-button search-toggle" id="search-toggle-desktop" title="Search">
+                            <i class="fas fa-search fa-fw" aria-hidden="true"></i>
+                        </a>
+                        <a href="javascript:void(0);" class="search-button search-clear" id="search-clear-desktop" title="Clear">
+                            <i class="fas fa-times-circle fa-fw" aria-hidden="true"></i>
+                        </a>
+                        <span class="search-button search-loading" id="search-loading-desktop">
+                            <i class="fas fa-spinner fa-fw fa-spin" aria-hidden="true"></i>
+                        </span>
+                    </span><a href="javascript:void(0);" class="menu-item theme-switch" title="Switch Theme">
+                    <i class="fas fa-adjust fa-fw" aria-hidden="true"></i>
+                </a></div>
+        </div>
+    </div>
+</header><header class="mobile" id="header-mobile">
+    <div class="header-container">
+        <div class="header-wrapper">
+            <div class="header-title">
+                <a href="/tech-blog/" title="Joe Ma&#39;s Tech Blog">Joe Ma&#39;s Tech Blog</a>
+            </div>
+            <div class="menu-toggle" id="menu-toggle-mobile">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+        <div class="menu" id="menu-mobile"><div class="search-wrapper">
+                    <div class="search mobile" id="search-mobile">
+                        <input type="text" placeholder="Search..." id="search-input-mobile">
+                        <a href="javascript:void(0);" class="search-button search-toggle" id="search-toggle-mobile" title="Search">
+                            <i class="fas fa-search fa-fw" aria-hidden="true"></i>
+                        </a>
+                        <a href="javascript:void(0);" class="search-button search-clear" id="search-clear-mobile" title="Clear">
+                            <i class="fas fa-times-circle fa-fw" aria-hidden="true"></i>
+                        </a>
+                        <span class="search-button search-loading" id="search-loading-mobile">
+                            <i class="fas fa-spinner fa-fw fa-spin" aria-hidden="true"></i>
+                        </span>
+                    </div>
+                    <a href="javascript:void(0);" class="search-cancel" id="search-cancel-mobile">
+                        Cancel
+                    </a>
+                </div><a class="menu-item" href="/tech-blog/posts/" title="">Posts</a><a class="menu-item" href="/tech-blog/about/" title="">About</a><a href="javascript:void(0);" class="menu-item theme-switch" title="Switch Theme">
+                <i class="fas fa-adjust fa-fw" aria-hidden="true"></i>
+            </a></div>
+    </div>
+</header><div class="search-dropdown desktop">
+        <div id="search-dropdown-desktop"></div>
+    </div>
+    <div class="search-dropdown mobile">
+        <div id="search-dropdown-mobile"></div>
+    </div><main class="main">
+                <div class="container"><div class="toc" id="toc-auto">
+            <h2 class="toc-title">Contents</h2>
+            <div class="toc-content" id="toc-content-auto"></div>
+        </div><article class="page single"><h1 class="single-title animate__animated animate__flipInX">Building a Data Pipeline Infrastructure That Scales with the Business</h1><div class="post-meta">
+            <div class="post-meta-line"><span class="post-author"><a href="/tech-blog/" title="Author" rel="author" class="author"><i class="fas fa-user-circle fa-fw" aria-hidden="true"></i>Joe Ma</a></span>&nbsp;<span class="post-category">included in <a href="/tech-blog/categories/software-engineering/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>Software-Engineering</a></span></div>
+            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw" aria-hidden="true"></i>&nbsp;<time datetime="2025-08-09">2025-08-09</time>&nbsp;<i class="fas fa-pencil-alt fa-fw" aria-hidden="true"></i>&nbsp;1725 words&nbsp;
+                <i class="far fa-clock fa-fw" aria-hidden="true"></i>&nbsp;9 minutes&nbsp;</div>
+        </div><div class="details toc" id="toc-static"  data-kept="">
+                <div class="details-summary toc-title">
+                    <span>Contents</span>
+                    <span><i class="details-icon fas fa-angle-right" aria-hidden="true"></i></span>
+                </div>
+                <div class="details-content toc-content" id="toc-content-static"><nav id="TableOfContents">
+  <ul>
+    <li><a href="#overview">Overview</a></li>
+    <li><a href="#the-challenge">The Challenge</a>
+      <ul>
+        <li><a href="#1-engineers-spending-excessive-time-managing-infrastructure">1. Engineers Spending Excessive Time Managing Infrastructure</a></li>
+        <li><a href="#2-broken-local-testing-environment-slowing-feedback-loops">2. Broken Local Testing Environment Slowing Feedback Loops</a></li>
+        <li><a href="#3-no-unified-protocol-or-framework-for-common-business-logic">3. No Unified Protocol or Framework for Common Business Logic</a></li>
+        <li><a href="#4-limited-data-pipeline-expertise-across-the-organization">4. Limited Data Pipeline Expertise Across the Organization</a></li>
+      </ul>
+    </li>
+    <li><a href="#technical-vision">Technical Vision</a>
+      <ul>
+        <li><a href="#1-eliminate-self-managed-aws-infrastructure">1. Eliminate Self-Managed AWS Infrastructure</a></li>
+        <li><a href="#2-provide-a-friendly-devdeployment-environment">2. Provide a Friendly Dev/Deployment Environment</a></li>
+        <li><a href="#3-align-pipeline-infrastructure-with-business-context">3. Align Pipeline Infrastructure with Business Context</a></li>
+      </ul>
+    </li>
+    <li><a href="#success-metrics">Success Metrics</a></li>
+    <li><a href="#high-level-architecture">High Level Architecture</a>
+      <ul>
+        <li><a href="#1-adopt-callback-pattern-to-enable-faster-iteration">1. Adopt Callback Pattern to Enable Faster Iteration</a></li>
+        <li><a href="#3-friendly-cicd-deployment-and-testing">3. Friendly CI/CD Deployment and Testing</a></li>
+      </ul>
+    </li>
+    <li><a href="#technical-discussion-and-tradeoff">Technical Discussion and Tradeoff</a>
+      <ul>
+        <li><a href="#1-excessive-python-based-callback-pattern-udf-creates-spark-job-overhead">1. Excessive Python-Based Callback Pattern (UDF) Creates Spark Job Overhead</a></li>
+        <li><a href="#2-state-based-tables-vs-event-based-tables">2. State-Based Tables vs. Event-Based Tables</a></li>
+      </ul>
+    </li>
+    <li><a href="#outcome">Outcome</a></li>
+  </ul>
+</nav></div>
+            </div><div class="content" id="content"><h2 id="overview">Overview</h2>
+<p>In Big Tech companies, <strong>processing massive volumes of data for annotation</strong> is essential for model training and model evaluation with human preferences (<strong>RLHF</strong>). Frequent changes in data requirements make it critical to have an <strong>infrastructure that enables rapid iteration</strong> without sacrificing stability or scalability.</p>
+<p>While working with the eng organization, I observed recurring inefficiencies in our existing approach and initiated a series of alignment meetings to define a shared <em>technical vision</em> and <em>architectural direction</em>. Once aligned, each engineer took ownership of a specific area of the plan, enabling parallel implementation. Through this coordinated effort, we <strong>rebuilt the data pipeline infrastructure from the ground up</strong>—scaling it to meet current needs and anticipate future growth.</p>
+<hr>
+<h2 id="the-challenge">The Challenge</h2>
+<p>Before we began the rebuild, I worked closely with the eng organization to surface pain points and map recurring patterns. <strong>Four key issues emerged:</strong></p>
+<h3 id="1-engineers-spending-excessive-time-managing-infrastructure">1. Engineers Spending Excessive Time Managing Infrastructure</h3>
+<p>Multiple AWS accounts and low-level resource management meant engineers had to invest heavily in <strong>DevOps concepts</strong>.<br>
+They often wrote extensive <strong>Pulumi</strong> code just to provision resources—<em>delaying any work on business logic</em>.</p>
+<h3 id="2-broken-local-testing-environment-slowing-feedback-loops">2. Broken Local Testing Environment Slowing Feedback Loops</h3>
+<p>Local testing was effectively broken due to <strong>persistent, hard-to-diagnose errors</strong>.<br>
+Each iteration required a <strong>full dev deployment</strong>, adding <em>over 3 minutes</em> before code could even be tested—multiplying delays across the team.</p>
+<h3 id="3-no-unified-protocol-or-framework-for-common-business-logic">3. No Unified Protocol or Framework for Common Business Logic</h3>
+<p>Although internal libraries existed for <strong>annotation upload/download</strong> and <strong>video perception</strong>, they offered <strong>limited abstraction</strong>.<br>
+Teams still wrote <strong>large amounts of repetitive PySpark boilerplate</strong> for similar workflows.</p>
+<h3 id="4-limited-data-pipeline-expertise-across-the-organization">4. Limited Data Pipeline Expertise Across the Organization</h3>
+<p>With most engineers coming from <strong>full-stack backgrounds</strong>, pipelines were often implemented without best practices—leading to <strong>slow runs</strong>, <strong>fragile error handling</strong>, and <strong>minimal operational insights</strong>.</p>
+<p><img
+        class="lazyload"
+        src="/tech-blog/svg/loading.min.svg"
+        data-src="/tech-blog/images/scale-pipeline-current-challenge.png"
+        data-srcset="/tech-blog/images/scale-pipeline-current-challenge.png, /tech-blog/images/scale-pipeline-current-challenge.png 1.5x, /tech-blog/images/scale-pipeline-current-challenge.png 2x"
+        data-sizes="auto"
+        alt="/tech-blog/images/scale-pipeline-current-challenge.png"
+        title="Current Challenge" width="2498" height="1200" /></p>
+<p>The image above shows the then-current pipeline landscape. As you can see, <strong>cross-project leverage was minimal</strong>, and each pipeline operated in isolation—often <strong>reinventing the same data pipeline logic</strong>.<br>
+This fragmentation resulted in <strong>inconsistent standards</strong> and <strong>noticeable discrepancies</strong> in pipeline quality.</p>
+<hr>
+<h2 id="technical-vision">Technical Vision</h2>
+<h3 id="1-eliminate-self-managed-aws-infrastructure">1. Eliminate Self-Managed AWS Infrastructure</h3>
+<p>Migrate from individually managed AWS accounts to the <strong>internal data platform</strong>, which provides <strong>higher-level abstractions</strong> for Airflow, Kubernetes, Spark, and Iceberg—removing the need to handle <strong>infrastructure provisioning</strong>, <strong>IAM</strong>, and other low-level configs.</p>
+<h3 id="2-provide-a-friendly-devdeployment-environment">2. Provide a Friendly Dev/Deployment Environment</h3>
+<p>Offer <strong>robust local</strong> and <strong>isolated cloud</strong> test environments to prevent deployment conflicts.<br>
+Automate promotions across dev, test, and prod to eliminate repetitive manual steps.</p>
+<h3 id="3-align-pipeline-infrastructure-with-business-context">3. Align Pipeline Infrastructure with Business Context</h3>
+<p>Build a <strong>high-level framework</strong> to orchestrate RLHF data pipelines with minimal effort.<br>
+Embedding business context enables <strong>faster iteration</strong> and <strong>adaptation</strong> to evolving data needs.</p>
+<hr>
+<h2 id="success-metrics">Success Metrics</h2>
+<ul>
+<li><strong>MVP delivered</strong> and integrated with a new data pipeline project.</li>
+<li><strong>One existing pipeline successfully migrated</strong> to the new infrastructure.</li>
+<li><strong>Boilerplate tasks eliminated</strong> (e.g., asset download/upload, metadata table bootstrap) through framework-level code, reducing the need for engineers to focus on Spark best practices.</li>
+<li><strong>Developer experience improved</strong> via robust local testing, isolated cloud test environments, and enforced linting/best practices (e.g., <code>pylint</code>).</li>
+</ul>
+<hr>
+<h2 id="high-level-architecture">High Level Architecture</h2>
+<p><img
+        class="lazyload"
+        src="/tech-blog/svg/loading.min.svg"
+        data-src="/tech-blog/images/scale-pipeline-high-level-architecture.png"
+        data-srcset="/tech-blog/images/scale-pipeline-high-level-architecture.png, /tech-blog/images/scale-pipeline-high-level-architecture.png 1.5x, /tech-blog/images/scale-pipeline-high-level-architecture.png 2x"
+        data-sizes="auto"
+        alt="/tech-blog/images/scale-pipeline-high-level-architecture.png"
+        title="High Level Architecture" width="2172" height="2044" /></p>
+<h3 id="1-adopt-callback-pattern-to-enable-faster-iteration">1. Adopt Callback Pattern to Enable Faster Iteration</h3>
+<p>RLHF pipelines follow a <strong>common workflow</strong>:</p>
+<div class="code-block code-line-numbers open" style="counter-reset: code-block 0">
+    <div class="code-header language-">
+        <span class="code-title"><i class="arrow fas fa-angle-right fa-fw" aria-hidden="true"></i></span>
+        <span class="ellipses"><i class="fas fa-ellipsis-h fa-fw" aria-hidden="true"></i></span>
+        <span class="copy" title="Copy to clipboard"><i class="far fa-copy fa-fw" aria-hidden="true"></i></span>
+    </div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-gdscript3" data-lang="gdscript3"><span class="line"><span class="cl"><span class="mf">1.</span> <span class="n">Asset</span> <span class="n">ingestion</span>
+</span></span><span class="line"><span class="cl"><span class="mf">2.</span> <span class="n">Asset</span> <span class="n">processing</span> <span class="o">/</span> <span class="n">pre</span><span class="o">-</span><span class="n">annotation</span>
+</span></span><span class="line"><span class="cl"><span class="mf">3.</span> <span class="n">Annotation</span> <span class="n">platform</span> <span class="n">upload</span>
+</span></span><span class="line"><span class="cl"><span class="mf">4.</span> <span class="n">Annotated</span> <span class="n">result</span> <span class="n">processing</span>
+</span></span><span class="line"><span class="cl"><span class="mf">5.</span> <span class="n">Dataset</span> <span class="n">generation</span></span></span></code></pre></div></div>
+<p>We adopt a <strong>callback pattern</strong> to <strong>abstract these stages</strong>, eliminating repetitive logic and enabling faster iteration.<br>
+Common tasks—such as <strong>Spark-based DataFrame processing</strong> and <strong>parallelized asset handling</strong>—are encapsulated, with <strong>extensible UDF callbacks</strong> allowing engineers from <em>full-stack backgrounds</em> to easily implement custom Python logic.</p>
+<hr>
+<h4 id="example-pre-annotation-spark-job-row-oriented-callback-with-external-tools">Example: Pre-Annotation Spark Job (Row-Oriented Callback with External Tools)</h4>
+<p>This example shows a <strong>row-oriented callback</strong> where each row is passed as a <strong>Python object (dict)</strong> to user code. The callback is free to invoke libraries like <strong>ffmpeg</strong> (via <code>subprocess</code>) to transform or enrich the data. We use <code>mapPartitions</code> to minimize per-row overhead and allow <strong>batch setup/teardown</strong> in each executor process.</p>
+<h6 id="pre-annotation-job-skeleton">Pre-Annotation Job (skeleton)</h6>
+<div class="code-block code-line-numbers open" style="counter-reset: code-block 0">
+    <div class="code-header language-python">
+        <span class="code-title"><i class="arrow fas fa-angle-right fa-fw" aria-hidden="true"></i></span>
+        <span class="ellipses"><i class="fas fa-ellipsis-h fa-fw" aria-hidden="true"></i></span>
+        <span class="copy" title="Copy to clipboard"><i class="far fa-copy fa-fw" aria-hidden="true"></i></span>
+    </div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># pre_annotate_job.py  (skeleton)</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># 1) start SparkSession</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># 2) read input DataFrame (assets)</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># 3) load callback from env: CALLBACK_FILE</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># 4) mapPartitions -&gt; for each row (as dict), call callback.process_row(row)</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># 5) create DataFrame from results, write to output</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># NOTE: All non-essential details omitted on purpose.</span></span></span></code></pre></div></div>
+<hr>
+<h5 id="callback-only-process_row-matters">Callback (only <code>process_row</code> matters)</h5>
+<div class="code-block code-line-numbers open" style="counter-reset: code-block 0">
+    <div class="code-header language-python">
+        <span class="code-title"><i class="arrow fas fa-angle-right fa-fw" aria-hidden="true"></i></span>
+        <span class="ellipses"><i class="fas fa-ellipsis-h fa-fw" aria-hidden="true"></i></span>
+        <span class="copy" title="Copy to clipboard"><i class="far fa-copy fa-fw" aria-hidden="true"></i></span>
+    </div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># my_callback.py</span>
+</span></span><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Optional</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">hashlib</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># Optional: import subprocess to call external tools like ffmpeg</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># import subprocess</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">class</span> <span class="nc">Callbacks</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="k">def</span> <span class="nf">process_row</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">row</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;&#34;&#34;Transform a single row (plain Python dict). Return a dict or None to drop.&#34;&#34;&#34;</span>
+</span></span><span class="line"><span class="cl">        <span class="n">video_id</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&#34;videoId&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="n">url</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&#34;url&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="ow">not</span> <span class="n">video_id</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">url</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">            <span class="k">return</span> <span class="kc">None</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="c1"># Example: derive a stable request id</span>
+</span></span><span class="line"><span class="cl">        <span class="n">request_id</span> <span class="o">=</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">sha256</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">video_id</span><span class="p">)</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&#34;utf-8&#34;</span><span class="p">))</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="c1"># Example (optional): call external tools such as ffmpeg</span>
+</span></span><span class="line"><span class="cl">        <span class="c1"># subprocess.run([&#34;ffmpeg&#34;, &#34;-i&#34;, url, &#34;-t&#34;, &#34;1&#34;, &#34;-f&#34;, &#34;null&#34;, &#34;-&#34;], check=False)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="c1"># Return only what the annotation platform needs</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;video_id&#34;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">video_id</span><span class="p">),</span>
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;asset_url&#34;</span><span class="p">:</span> <span class="n">url</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;request_id&#34;</span><span class="p">:</span> <span class="n">request_id</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span></span></span></code></pre></div></div>
+<hr>
+<h5 id="spark-on-k8s-passing-the-callback-path">Spark on K8s (passing the callback path)</h5>
+<div class="code-block code-line-numbers open" style="counter-reset: code-block 0">
+    <div class="code-header language-yaml">
+        <span class="code-title"><i class="arrow fas fa-angle-right fa-fw" aria-hidden="true"></i></span>
+        <span class="ellipses"><i class="fas fa-ellipsis-h fa-fw" aria-hidden="true"></i></span>
+        <span class="copy" title="Copy to clipboard"><i class="far fa-copy fa-fw" aria-hidden="true"></i></span>
+    </div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="c"># sparkapplication.yaml  (only the relevant env var shown)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">sparkoperator.k8s.io/v1beta2</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">SparkApplication</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">rlhf-pre-annotate</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l">Python</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">mainApplicationFile</span><span class="p">:</span><span class="w"> </span><span class="l">local:///opt/app/pre_annotate_job.py</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">driver</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">env</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span>- <span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">CALLBACK_FILE</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;/opt/app/my_callback.py&#34;</span><span class="w">   </span><span class="c"># &lt;-- point to your callback</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">executor</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">env</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span>- <span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">CALLBACK_FILE</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;/opt/app/my_callback.py&#34;</span></span></span></code></pre></div></div>
+<p>The diagram below illustrates how engineers can leverage the framework using custom callbacks.</p>
+<p><img
+        class="lazyload"
+        src="/tech-blog/svg/loading.min.svg"
+        data-src="/tech-blog/images/scale-pipeline-modualized-job.png"
+        data-srcset="/tech-blog/images/scale-pipeline-modualized-job.png, /tech-blog/images/scale-pipeline-modualized-job.png 1.5x, /tech-blog/images/scale-pipeline-modualized-job.png 2x"
+        data-sizes="auto"
+        alt="/tech-blog/images/scale-pipeline-modualized-job.png"
+        title="Modualzied job with custom callback" width="3212" height="2067" /></p>
+<h3 id="3-friendly-cicd-deployment-and-testing">3. Friendly CI/CD Deployment and Testing</h3>
+<p>As shown in the diagram below, we simplify our environment model to <strong>two core environments</strong>—<strong>dev</strong> and <strong>prod</strong>—removing unused staging and test environments.</p>
+<p>All commits pushed to a <strong>feature branch</strong> trigger an <strong>automatic sandbox deployment</strong> in an <strong>isolated environment</strong> managed by the internal data platform and running in the <strong>shared dev Kubernetes cluster</strong>.</p>
+<p><strong>Benefits:</strong></p>
+<ul>
+<li><strong>Fast feedback loops</strong> for feature development.</li>
+<li><strong>Isolation</strong> between engineers’ work to avoid cross-branch interference.</li>
+<li><strong>Automatic promotion</strong> to production when changes are merged into <code>main</code>.</li>
+</ul>
+<p><img
+        class="lazyload"
+        src="/tech-blog/svg/loading.min.svg"
+        data-src="/tech-blog/images/scale-pipeline-cicd.png"
+        data-srcset="/tech-blog/images/scale-pipeline-cicd.png, /tech-blog/images/scale-pipeline-cicd.png 1.5x, /tech-blog/images/scale-pipeline-cicd.png 2x"
+        data-sizes="auto"
+        alt="/tech-blog/images/scale-pipeline-cicd.png"
+        title="CICD / Sandbox Setup" width="1531" height="778" /></p>
+<p>For even faster iteration, engineers can run a <strong>local testing script</strong> that executes PySpark code inside a <strong>containerized environment</strong> on their local machine, allowing them to validate changes before pushing to the feature branch.</p>
+<h2 id="technical-discussion-and-tradeoff">Technical Discussion and Tradeoff</h2>
+<h3 id="1-excessive-python-based-callback-pattern-udf-creates-spark-job-overhead">1. Excessive Python-Based Callback Pattern (UDF) Creates Spark Job Overhead</h3>
+<p>When engineers implement callbacks in Python, Spark must invoke them as UDFs (user-defined functions). This creates a <strong>cross-language execution path</strong> between the JVM (where Spark core runs) and the Python process (where the callback code runs).</p>
+<p>As shown in the diagram below, every UDF call requires:</p>
+<ol>
+<li><strong>Serialization</strong> of data from the JVM into Python-compatible objects.</li>
+<li><strong>Transfer</strong> of that data through the Py4J socket bridge.</li>
+<li><strong>Execution</strong> of the Python callback logic.</li>
+<li><strong>Serialization back</strong> from Python to JVM objects.</li>
+</ol>
+<p>While this overhead can become a bottleneck at scale (e.g., millions of rows), there is <strong>no requirement for the data to arrive at extremely precise delivery times</strong>. Given this, our <strong>first priority is enabling full-stack engineers to deliver quickly</strong>, and we consciously accept this trade-off.</p>
+<p>Rather than investing significant effort in educating engineers on data pipeline best practices, we built a <strong>framework</strong> that abstracts away Spark complexity and empowers them to implement their business logic in familiar Python code.</p>
+<p><img
+        class="lazyload"
+        src="/tech-blog/svg/loading.min.svg"
+        data-src="/tech-blog/images/scale-pipeline-process.jpg"
+        data-srcset="/tech-blog/images/scale-pipeline-process.jpg, /tech-blog/images/scale-pipeline-process.jpg 1.5x, /tech-blog/images/scale-pipeline-process.jpg 2x"
+        data-sizes="auto"
+        alt="/tech-blog/images/scale-pipeline-process.jpg"
+        title="python vs spark process" width="744" height="324" /></p>
+<p><strong>Key takeaways:</strong></p>
+<ul>
+<li>Python callbacks run inside the <strong>Python process</strong>, requiring all data to cross the JVM↔Python boundary.</li>
+<li>In our case, the performance cost is acceptable given the data volume, lack of strict delivery-time requirements, and our goal of rapid feature delivery.</li>
+<li>The framework allows engineers to focus on business logic while the platform handles orchestration, scaling, and data movement.</li>
+</ul>
+<h3 id="2-state-based-tables-vs-event-based-tables">2. State-Based Tables vs. Event-Based Tables</h3>
+<p>During migration, we refactored the pipeline for <strong>parallel execution</strong>. This introduced <strong>concurrent writes</strong> to an Iceberg table, resulting in <strong>commit conflicts</strong> (Iceberg uses optimistic concurrency with snapshot isolation). When multiple jobs write overlapping files or partitions and attempt to <strong>commit against the same snapshot lineage</strong>, Iceberg rejects one or more commits.</p>
+<p>This prompted a discussion on <strong>table design strategy</strong>. While append-only tables are the industry norm in data engineering—and are well-supported by Iceberg—we ultimately chose a <strong>state-based design</strong> for this case. To mitigate concurrent write conflicts, we implemented a <strong>generic merge job</strong> that consolidates all temporary tables produced by parallel jobs into the target table, adding extra columns as needed.</p>
+<p><strong>The main reasons we chose state-based design:</strong></p>
+<ul>
+<li><strong>Latest data access:</strong> Our queries always rely on the most up-to-date state, making state tables a better fit for our workload.</li>
+<li><strong>Team familiarity:</strong> All engineers have a full-stack background, and adopting append-only style would add overhead for them to adapt to the event-sourced mental model.</li>
+<li><strong>Reduced downstream complexity:</strong> Append style shifts the cost to downstream queries and dashboards, requiring careful handling of “latest record” logic and schema versioning. Frequent schema changes from evolving business requirements can easily break these consumers.</li>
+</ul>
+<hr>
+<p><strong>Example: Merging temporary tables into the base table (Upsert with new columns)</strong></p>
+<div class="code-block code-line-numbers open" style="counter-reset: code-block 0">
+    <div class="code-header language-sql">
+        <span class="code-title"><i class="arrow fas fa-angle-right fa-fw" aria-hidden="true"></i></span>
+        <span class="ellipses"><i class="fas fa-ellipsis-h fa-fw" aria-hidden="true"></i></span>
+        <span class="copy" title="Copy to clipboard"><i class="far fa-copy fa-fw" aria-hidden="true"></i></span>
+    </div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="n">MERGE</span><span class="w"> </span><span class="k">INTO</span><span class="w"> </span><span class="n">prod</span><span class="p">.</span><span class="n">main_table</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">target</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">USING</span><span class="w"> </span><span class="p">(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">SELECT</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">tmp_table_1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">UNION</span><span class="w"> </span><span class="k">ALL</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">SELECT</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">tmp_table_2</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">UNION</span><span class="w"> </span><span class="k">ALL</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">SELECT</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">tmp_table_3</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="k">source</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">ON</span><span class="w"> </span><span class="n">target</span><span class="p">.</span><span class="n">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">source</span><span class="p">.</span><span class="n">id</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">WHEN</span><span class="w"> </span><span class="n">MATCHED</span><span class="w"> </span><span class="k">THEN</span><span class="w"> </span><span class="k">UPDATE</span><span class="w"> </span><span class="k">SET</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">target</span><span class="p">.</span><span class="n">col_a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">source</span><span class="p">.</span><span class="n">col_a</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">target</span><span class="p">.</span><span class="n">col_b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">source</span><span class="p">.</span><span class="n">col_b</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">target</span><span class="p">.</span><span class="n">new_col_c</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">source</span><span class="p">.</span><span class="n">new_col_c</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">target</span><span class="p">.</span><span class="n">updated_at</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">current_timestamp</span><span class="p">()</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">WHEN</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="n">MATCHED</span><span class="w"> </span><span class="k">THEN</span><span class="w"> </span><span class="k">INSERT</span><span class="w"> </span><span class="o">*</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">;</span></span></span></code></pre></div></div>
+<p><strong>Note:</strong> We will revisit the table design next quarter after observing the system in production. The current state-based approach addresses immediate concurrency and downstream complexity, but Iceberg’s native features—such as schema and partition evolution, time-travel, equality/position deletes with merge-on-read semantics, and <code>MERGE INTO</code>—may mitigate several drawbacks of an append-only model. We’ll re-evaluate with production metrics (e.g., commit conflict rate, merge job runtime, query latency/cost) before making a long-term decision.</p>
+<h2 id="outcome">Outcome</h2>
+<p>This initiative transformed a fragmented, slow-moving RLHF data pipeline ecosystem into a <strong>scalable, developer-friendly platform</strong> aligned with evolving business needs.<br>
+I took the <strong>initiative to surface key pain points</strong>, drove <strong>cross-team alignment</strong>, and <strong>authored the technical vision and architectural direction</strong> that guided parallel implementation across a 10+ engineer org. Key results from the collective effort include:</p>
+<ul>
+<li><strong>Infrastructure modernization</strong> — Migrated from self-managed AWS resources to an internal high-level data platform, eliminating DevOps overhead for engineers.</li>
+<li><strong>Developer experience boost</strong> — Enabled robust local and isolated cloud testing, automated environment promotions, and simplified CI/CD workflows.</li>
+<li><strong>Framework-driven productivity</strong> — Introduced a <strong>callback-based orchestration pattern</strong>, abstracting Spark complexity so full-stack engineers could contribute business logic in familiar Python.</li>
+<li><strong>Table strategy for concurrency</strong> — Resolved Iceberg commit conflicts via a <strong>state-based table design</strong> and generic merge process, while laying the groundwork for potential re-adoption of append-only with Iceberg’s native capabilities.</li>
+<li><strong>Measured trade-offs</strong> — Accepted Python UDF overhead to maximize iteration speed, knowing delivery-time precision was not business-critical.</li>
+</ul>
+<p><strong>Impact:</strong><br>
+By setting the direction and enabling coordinated execution, I accelerated iteration cycles, reduced boilerplate, standardized pipeline quality, and positioned the org to scale data processing capacity for future model training demands.</p>
+</div><div class="post-footer" id="post-footer">
+    <div class="post-info">
+        <div class="post-info-line">
+            <div class="post-info-mod">
+                <span>Updated on 2025-08-09</span>
+            </div></div>
+        <div class="post-info-line">
+            <div class="post-info-md"></div>
+            <div class="post-info-share">
+                <span><a href="javascript:void(0);" title="Share on X" data-sharer="x" data-url="https://mrjoema.github.io/tech-blog/2025/08/building-a-data-pipeline-infrastructure-that-scales-with-the-business/" data-title="Building a Data Pipeline Infrastructure That Scales with the Business" data-hashtags="data-pipeline,data,aiml,annotation"><i class="fab fa-x-twitter fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Threads" data-sharer="threads" data-url="https://mrjoema.github.io/tech-blog/2025/08/building-a-data-pipeline-infrastructure-that-scales-with-the-business/" data-title="Building a Data Pipeline Infrastructure That Scales with the Business"><i class="fab fa-threads fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Facebook" data-sharer="facebook" data-url="https://mrjoema.github.io/tech-blog/2025/08/building-a-data-pipeline-infrastructure-that-scales-with-the-business/" data-hashtag="data-pipeline"><i class="fab fa-facebook-square fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Hacker News" data-sharer="hackernews" data-url="https://mrjoema.github.io/tech-blog/2025/08/building-a-data-pipeline-infrastructure-that-scales-with-the-business/" data-title="Building a Data Pipeline Infrastructure That Scales with the Business"><i class="fab fa-hacker-news fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Line" data-sharer="line" data-url="https://mrjoema.github.io/tech-blog/2025/08/building-a-data-pipeline-infrastructure-that-scales-with-the-business/" data-title="Building a Data Pipeline Infrastructure That Scales with the Business"><i data-svg-src="https://cdn.jsdelivr.net/npm/simple-icons@14.9.0/icons/line.svg" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on 微博" data-sharer="weibo" data-url="https://mrjoema.github.io/tech-blog/2025/08/building-a-data-pipeline-infrastructure-that-scales-with-the-business/" data-title="Building a Data Pipeline Infrastructure That Scales with the Business"><i class="fab fa-weibo fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Diaspora" data-sharer="diaspora" data-url="https://mrjoema.github.io/tech-blog/2025/08/building-a-data-pipeline-infrastructure-that-scales-with-the-business/" data-title="Building a Data Pipeline Infrastructure That Scales with the Business" data-description=""><i class="fab fa-diaspora fa-fw" aria-hidden="true"></i></a><a href="https://t.me/share/url?url=https%3a%2f%2fmrjoema.github.io%2ftech-blog%2f2025%2f08%2fbuilding-a-data-pipeline-infrastructure-that-scales-with-the-business%2f&amp;text=Building%20a%20Data%20Pipeline%20Infrastructure%20That%20Scales%20with%20the%20Business" target="_blank" title="Share on Telegram"><i class="fab fa-telegram fa-fw" aria-hidden="true"></i></a></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="post-info-more">
+        <section class="post-tags"><i class="fas fa-tags fa-fw" aria-hidden="true"></i>&nbsp;<a href="/tech-blog/tags/data-pipeline/">Data-Pipeline</a>,&nbsp;<a href="/tech-blog/tags/data/">Data</a>,&nbsp;<a href="/tech-blog/tags/aiml/">Aiml</a>,&nbsp;<a href="/tech-blog/tags/annotation/">Annotation</a></section>
+        <section>
+            <span><a href="javascript:void(0);" onclick="window.history.back();">Back</a></span>&nbsp;|&nbsp;<span><a href="/tech-blog/">Home</a></span>
+        </section>
+    </div>
+
+    <div class="post-nav"></div>
+</div>
+</article></div>
+            </main><footer class="footer">
+        <div class="footer-container"><div class="footer-line">Powered by <a href="https://gohugo.io/" target="_blank" rel="noopener noreffer" title="Hugo 0.148.2">Hugo</a> | Theme - <a href="https://github.com/dillonzq/LoveIt" target="_blank" rel="noopener noreffer" title="LoveIt 0.3.1-DEV"><i class="far fa-kiss-wink-heart fa-fw" aria-hidden="true"></i> LoveIt</a>
+                </div><div class="footer-line" itemscope itemtype="http://schema.org/CreativeWork"><i class="far fa-copyright fa-fw" aria-hidden="true"></i><span itemprop="copyrightYear">2022 - 2025</span><span class="author" itemprop="copyrightHolder">&nbsp;<a href="/tech-blog/" target="_blank">Joe Ma</a></span></div>
+        </div>
+    </footer></div>
+
+        <div id="fixed-buttons"><a href="#" id="back-to-top" class="fixed-button" title="Back to Top">
+                <i class="fas fa-arrow-up fa-fw" aria-hidden="true"></i>
+            </a>
+        </div>
+
+        <div id="fixed-buttons-hidden"><a href="#" id="view-comments" class="fixed-button" title="View Comments">
+                <i class="fas fa-comment fa-fw" aria-hidden="true"></i>
+            </a>
+        </div><script src="https://cdn.jsdelivr.net/npm/autocomplete.js@0.38.1/dist/autocomplete.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lunr@2.3.9/lunr.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lazysizes@5.3.2/lazysizes.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.11/dist/clipboard.min.js"></script><script src="https://cdn.jsdelivr.net/npm/sharer.js@0.5.2/sharer.min.js"></script><script>window.config={"comment":{},"search":{"highlightTag":"em","lunrIndexURL":"/tech-blog/index.json","maxResultLength":10,"noResultsFound":"No results found","snippetLength":30,"type":"lunr"}};</script><script src="/tech-blog/js/theme.min.js"></script>
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-8JE61YLR41"></script>
+        <script>
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+
+          gtag('config', 'G-8JE61YLR41');
+        </script></body>
+</html>
