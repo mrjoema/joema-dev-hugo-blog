@@ -3,11 +3,17 @@
     xmlns:xhtml="http://www.w3.org/1999/xhtml"
     ><url>
             <loc>http://localhost:1313/about/</loc><lastmod>2025-08-09T00:00:00&#43;00:00</lastmod></url><url>
+            <loc>http://localhost:1313/tags/aiml/</loc><lastmod>2025-08-09T00:00:00&#43;00:00</lastmod></url><url>
+            <loc>http://localhost:1313/tags/annotation/</loc><lastmod>2025-08-09T00:00:00&#43;00:00</lastmod></url><url>
+            <loc>http://localhost:1313/2025/08/building-a-data-pipeline-infrastructure-that-scales-with-the-business/</loc><lastmod>2025-08-09T00:00:00&#43;00:00</lastmod></url><url>
             <loc>http://localhost:1313/categories/</loc><lastmod>2025-08-09T00:00:00&#43;00:00</lastmod></url><url>
+            <loc>http://localhost:1313/tags/data/</loc><lastmod>2025-08-09T00:00:00&#43;00:00</lastmod></url><url>
+            <loc>http://localhost:1313/tags/data-pipeline/</loc><lastmod>2025-08-09T00:00:00&#43;00:00</lastmod></url><url>
             <loc>http://localhost:1313/categories/general/</loc><lastmod>2025-08-09T00:00:00&#43;00:00</lastmod></url><url>
             <loc>http://localhost:1313/tags/introduction/</loc><lastmod>2025-08-09T00:00:00&#43;00:00</lastmod></url><url>
             <loc>http://localhost:1313/</loc><lastmod>2025-08-09T00:00:00&#43;00:00</lastmod></url><url>
             <loc>http://localhost:1313/posts/</loc><lastmod>2025-08-09T00:00:00&#43;00:00</lastmod></url><url>
+            <loc>http://localhost:1313/categories/software-engineering/</loc><lastmod>2025-08-09T00:00:00&#43;00:00</lastmod></url><url>
             <loc>http://localhost:1313/tags/</loc><lastmod>2025-08-09T00:00:00&#43;00:00</lastmod></url><url>
             <loc>http://localhost:1313/tags/welcome/</loc><lastmod>2025-08-09T00:00:00&#43;00:00</lastmod></url><url>
             <loc>http://localhost:1313/2025/08/welcome-to-my-tech-blog/</loc><lastmod>2025-08-09T00:00:00&#43;00:00</lastmod></url><url>
